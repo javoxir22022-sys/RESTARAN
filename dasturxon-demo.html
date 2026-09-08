@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dasturxon — Restoranlar va bron qilish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF6EE;
+    --paper:#FFFDF8;
+    --ink:#241512;
+    --ink-soft:#6B594F;
+    --spice:#C13F2B;
+    --spice-dark:#9E3320;
+    --saffron:#E8A93B;
+    --teal:#1F6F78;
+    --line:#E7DDCC;
+    --radius:14px;
+  }
+  body[data-theme="dark"]{
+    --bg:#1B1310;
+    --paper:#251B16;
+    --ink:#F3E9DE;
+    --ink-soft:#B39F8F;
+    --line:#3A2C24;
+    --saffron:#F0BC5E;
+  }
+  body{ transition:background .2s ease, color .2s ease; }
+  .theme-toggle{
+    background:var(--paper); border:1px solid var(--line); border-radius:50%;
+    width:34px; height:34px; cursor:pointer; font-size:15px; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; text-decoration:none;
+  }
+  .lang-switch{ display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; }
+  .lang-switch button{
+    border:none; background:var(--paper); color:var(--ink-soft); font-size:11.5px; font-weight:800;
+    padding:7px 10px; cursor:pointer; font-family:'JetBrains Mono',monospace;
+  }
+  .lang-switch button.active{ background:var(--ink); color:var(--bg); }
+  @media (max-width:720px){ .lang-switch{ display:flex; } }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Manrope', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.wordmark{ font-family:'Fraunces', serif; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 5vw; gap:10px; flex-wrap:wrap;
+    background:rgba(251,246,238,0.9);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .wordmark{
+    font-style:italic; font-weight:600; font-size:22px;
+    color:var(--ink); text-decoration:none; letter-spacing:-0.02em;
+  }
+  .wordmark span{ color:var(--spice); font-style:normal; }
+  .nav-links{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; row-gap:8px; }
+  .nav-links a{
+    color:var(--ink-soft); text-decoration:none; font-size:14px; font-weight:600;
+  }
+  .city-pill{
+    display:flex; align-items:center; gap:6px;
+    background:var(--paper); border:1px solid var(--line); border-radius:999px;
+    padding:7px 14px; font-size:13px; font-weight:700; color:var(--ink);
+    white-space:nowrap;
+  }
+  @media (max-width:720px){
+    .nav-links a:not(.city-pill){ display:none; }
+    .nav-links{ gap:10px; }
+  }
+  @media (max-width:420px){
+    header.nav{ padding:12px 5vw; }
+    .city-pill span.city-text{ display:none; }
+    .city-pill{ padding:7px 10px; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding:56px 5vw 28px; max-width:900px; }
+  .eyebrow{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--teal);
+    background:#EAF3F2; padding:5px 10px; border-radius:6px; margin-bottom:16px;
+  }
+  .hero h1{
+    font-size:clamp(34px,5.6vw,58px); line-height:1.03; font-weight:600;
+    margin:0 0 14px; letter-spacing:-0.01em;
+  }
+  .hero h1 em{ color:var(--spice); font-style:italic; }
+  .hero p{ font-size:17px; color:var(--ink-soft); max-width:520px; line-height:1.55; margin:0 0 26px;}
+
+  .search-row{ margin-bottom:16px; }
+  #searchInput{
+    width:100%; max-width:420px; padding:12px 16px; border-radius:10px;
+    border:1px solid var(--line); background:var(--paper); font-family:'Manrope',sans-serif;
+    font-size:14.5px; color:var(--ink);
+  }
+  #searchInput:focus{ outline:none; border-color:var(--teal); }
+  .filter-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .chip{
+    border:1px solid var(--line); background:var(--paper); color:var(--ink-soft);
+    padding:9px 16px; border-radius:999px; font-size:14px; font-weight:700;
+    cursor:pointer; transition:all .15s ease;
+  }
+  .chip:hover{ border-color:var(--spice); color:var(--spice); }
+  .chip.active{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+  /* ---------- RESTAURANT STRIP ---------- */
+  .r-strip{
+    display:flex; gap:12px; overflow-x:auto; padding:16px 5vw 10px;
+    scroll-snap-type:x mandatory; scroll-padding-left:5vw;
+  }
+  .r-strip::-webkit-scrollbar{ height:0; }
+  .r-card{
+    flex:0 0 220px; scroll-snap-align:start; scroll-snap-stop:always; position:relative;
+    background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
+    padding:14px; cursor:pointer; transition:transform .15s ease, border-color .15s ease;
+  }
+  .r-card:hover{ transform:translateY(-3px); }
+  .r-card.active{ border-color:var(--spice); box-shadow:0 0 0 2px rgba(193,63,43,0.12); }
+  .r-thumb{
+    height:80px; border-radius:9px; margin-bottom:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:44px; position:relative; line-height:1; text-align:center; overflow:hidden;
+  }
+  .fav-btn{
+    position:absolute; top:12px; right:12px; z-index:2;
+    width:30px; height:30px; border-radius:50%; border:none;
+    background:rgba(255,253,248,0.9); font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; color:var(--ink-soft);
+  }
+  .fav-btn.active{ color:var(--spice); }
+  .open-badge{
+    position:absolute; bottom:8px; left:8px; font-size:10px; font-weight:700;
+    background:#274B3E; color:#B9E8C9; padding:3px 8px; border-radius:999px;
+    text-transform:uppercase; letter-spacing:.03em;
+  }
+  .r-card h3{ margin:0 0 4px; font-size:17px; font-weight:600; }
+  .r-meta{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); }
+  .r-tag{ font-size:11px; color:var(--teal); font-weight:700; text-transform:uppercase; letter-spacing:.03em; margin-bottom:6px; display:block;}
+
+  /* ---------- MAIN GRID: MENU + TICKET ---------- */
+  .main-grid{
+    display:grid; grid-template-columns:1.6fr 1fr; gap:28px;
+    padding:34px 6vw 10px; align-items:start;
+  }
+  @media (max-width:880px){ .main-grid{ grid-template-columns:1fr; } }
+
+  .menu-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
+  .menu-head h2{ font-size:26px; font-weight:600; margin:0; }
+  .menu-head .rating{ color:var(--saffron); font-weight:700; font-size:14px; }
+  .menu-sub{ color:var(--ink-soft); font-size:14px; margin-bottom:20px; }
+
+  .menu-item{
+    display:flex; align-items:flex-start; gap:10px;
+    padding:16px 6px 16px 0; border-bottom:1px dashed var(--line);
+  }
+  .menu-item:last-child{ border-bottom:none; }
+  .mi-emoji{
+    width:46px; height:46px; border-radius:10px; flex:0 0 46px;
+    display:flex; align-items:center; justify-content:center; font-size:26px; line-height:1; text-align:center;
+    position:relative; overflow:hidden;
+  }
+  .real-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .mi-info{ flex:1 1 auto; min-width:0; }
+  .mi-info h4{
+    margin:0 0 2px; font-size:14.5px; font-weight:700;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .mi-info p{
+    margin:0; font-size:12px; color:var(--ink-soft);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .discount-tag{
+    font-size:9.5px; font-weight:800; background:var(--spice); color:#fff;
+    padding:2px 5px; border-radius:5px; letter-spacing:.02em; flex:none;
+  }
+  .mi-action{ display:flex; align-items:center; gap:8px; margin-top:9px; }
+  .mi-price{ font-family:'JetBrains Mono',monospace; font-weight:600; font-size:13px; white-space:nowrap; display:flex; align-items:baseline; gap:5px; }
+  .mi-price .old{ text-decoration:line-through; color:var(--ink-soft); font-size:11px; font-weight:500; }
+  .add-btn{
+    width:30px; height:30px; border-radius:50%; border:none;
+    background:var(--spice); color:#fff; font-size:18px; font-weight:700; line-height:1;
+    cursor:pointer; flex:0 0 30px; transition:all .15s ease;
+    box-shadow:0 3px 8px rgba(193,63,43,0.35);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .add-btn:hover{ background:var(--spice-dark); transform:scale(1.06); }
+  .add-btn:active{ background:var(--spice-dark); transform:scale(0.92); }
+  @media (min-width:480px){
+    .mi-emoji{ width:52px; height:52px; flex-basis:52px; font-size:28px; }
+    .mi-info h4{ font-size:15.5px; }
+    .mi-info p{ font-size:13px; }
+    .mi-price{ font-size:14.5px; }
+    .mi-price .old{ font-size:12px; }
+    .add-btn{ width:32px; height:32px; flex-basis:32px; font-size:19px; }
+  }
+
+  /* ---------- REVIEWS ---------- */
+  .reviews{ margin-top:34px; padding-top:26px; border-top:1px solid var(--line); }
+  .reviews h3{ font-size:17px; margin:0 0 14px; font-weight:700; }
+  .review{ display:flex; gap:12px; padding:12px 0; }
+  .review-avatar{
+    width:36px; height:36px; border-radius:50%; background:var(--saffron);
+    color:#fff; font-weight:700; display:flex; align-items:center; justify-content:center;
+    flex:none; font-size:14px;
+  }
+  .review-name{ font-weight:700; font-size:13.5px; }
+  .review-stars{ color:var(--saffron); font-size:12px; margin-left:6px; }
+  .review-text{ margin:3px 0 0; font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
+
+  /* ---------- STATUS TRACKER ---------- */
+  .status-tracker{ padding:6px 2px 18px; }
+  .status-step{ display:flex; align-items:center; gap:10px; padding:8px 0; opacity:.4; transition:opacity .2s ease; }
+  .status-step.done{ opacity:1; }
+  .status-dot{
+    width:20px; height:20px; border-radius:50%; border:2px solid var(--ink-soft); flex:none;
+    display:flex; align-items:center; justify-content:center; font-size:11px; color:transparent;
+  }
+  .status-step.done .status-dot{ background:var(--teal); border-color:var(--teal); color:#fff; }
+  .status-label{ font-size:13.5px; font-weight:600; }
+  .status-time{ margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-soft); }
+
+  /* ---------- TICKET (signature element) ---------- */
+  .ticket-wrap{ position:sticky; top:90px; }
+  .ticket{
+    background:var(--paper); border:1px solid var(--line); border-radius:10px;
+    padding:22px 20px 4px; position:relative;
+  }
+  .ticket::after{
+    content:""; display:block; height:11px; margin:14px -20px 0;
+    background:
+      linear-gradient(-45deg, var(--bg) 6px, transparent 0) 0 0/11px 11px repeat-x,
+      linear-gradient(45deg, var(--bg) 6px, transparent 0) 0 0/11px 11px repeat-x;
+  }
+  .ticket-top{ text-align:center; margin-bottom:6px; }
+  .ticket-top .t-name{ font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; letter-spacing:.12em; }
+  .ticket-top .t-sub{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-soft); margin-top:2px;}
+  .ticket-divider{ border:none; border-top:1px dashed var(--line); margin:14px 0; }
+  .t-empty{ text-align:center; padding:26px 6px; color:var(--ink-soft); font-size:13.5px; }
+  .t-line{
+    display:flex; align-items:baseline; gap:6px; font-family:'JetBrains Mono',monospace;
+    font-size:12.5px; margin-bottom:9px;
+  }
+  .t-line .t-qty{ color:var(--spice); font-weight:700; flex:none; }
+  .t-line .t-name{ white-space:nowrap; overflow:hidden; }
+  .t-leader{ flex:1; border-bottom:1px dotted var(--line); transform:translateY(-3px); min-width:8px; }
+  .t-line .t-amt{ flex:none; font-weight:600; }
+  .t-remove{ background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:13px;padding:0 0 0 4px;}
+  .t-remove:hover{ color:var(--spice); }
+  .t-totals{ font-family:'JetBrains Mono',monospace; font-size:13px; }
+  .t-totals .row{ display:flex; justify-content:space-between; padding:4px 0; color:var(--ink-soft); }
+  .t-totals .row.jami{ color:var(--ink); font-weight:700; font-size:16px; border-top:1px dashed var(--line); margin-top:6px; padding-top:12px; }
+  .order-btn{
+    width:100%; margin:16px 0 20px; padding:13px; border:none; border-radius:9px;
+    background:var(--spice); color:#fff; font-weight:700; font-size:14.5px;
+    cursor:pointer; transition:background .15s ease;
+  }
+  .order-btn:hover{ background:var(--spice-dark); }
+  .order-btn:disabled{ background:#D8CFC2; cursor:not-allowed; }
+
+  /* ---------- PAYMENT & NOTE ---------- */
+  .pay-row{ margin:14px 0 10px; }
+  .pay-label{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft); display:block; margin-bottom:8px; }
+  .pay-options{ display:flex; gap:6px; flex-wrap:wrap; }
+  .pay-opt{
+    border:1px solid var(--line); background:var(--bg); color:var(--ink-soft);
+    padding:7px 10px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer;
+  }
+  .pay-opt.active{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+  .courier-note{
+    width:100%; margin-top:10px; padding:9px 11px; border-radius:8px; border:1px solid var(--line);
+    font-family:'Manrope',sans-serif; font-size:12.5px; color:var(--ink); background:var(--bg);
+    resize:none;
+  }
+  .courier-note:focus{ outline:none; border-color:var(--teal); }
+
+  /* ---------- MY ORDERS ---------- */
+  .my-orders-block{ margin-top:14px; }
+  .my-orders-toggle{
+    width:100%; background:var(--paper); border:1px solid var(--line); border-radius:10px;
+    padding:11px; font-size:13px; font-weight:700; color:var(--ink); cursor:pointer;
+  }
+  .my-orders-panel{
+    margin-top:10px; background:var(--paper); border:1px solid var(--line); border-radius:10px;
+    padding:14px; max-height:280px; overflow-y:auto;
+  }
+  .mo-empty{ text-align:center; color:var(--ink-soft); font-size:13px; padding:10px 0; }
+  .mo-item{ padding:10px 0; border-bottom:1px dashed var(--line); font-size:12.5px; }
+  .mo-item:last-child{ border-bottom:none; }
+  .mo-top{ display:flex; justify-content:space-between; font-weight:700; margin-bottom:3px; }
+  .mo-meta{ color:var(--ink-soft); }
+  .mo-status{
+    display:inline-block; margin-top:4px; font-size:10.5px; font-weight:800; padding:2px 8px;
+    border-radius:999px; background:#D6E9DC; color:#274B3E; text-transform:uppercase; letter-spacing:.02em;
+  }
+
+  @media (max-width:880px){
+    .ticket-wrap{ position:static; }
+    .ticket{ padding:14px 12px 4px; border-radius:12px; }
+    .ticket::after{ margin:10px -12px 0; height:9px; }
+    .ticket-top{ margin-bottom:4px; }
+    .ticket-top .t-name{ font-size:11px; }
+    .ticket-top .t-sub{ font-size:10px; }
+    .ticket-divider{ margin:10px 0; }
+    .t-empty{ padding:14px 6px; font-size:12px; }
+    .t-line{ font-size:11.5px; margin-bottom:6px; }
+    .t-totals{ font-size:11.5px; }
+    .t-totals .row{ padding:3px 0; }
+    .t-totals .row.jami{ font-size:14px; padding-top:8px; margin-top:4px; }
+    .pay-row{ margin:8px 0 6px; }
+    .pay-label{ margin-bottom:6px; font-size:11px; }
+    .pay-opt{ padding:5px 8px; font-size:11px; }
+    .courier-note{ font-size:11.5px; padding:7px 9px; margin-top:8px; }
+    .order-btn{ margin:10px 0 12px; padding:11px; font-size:13.5px; }
+    .my-orders-block{ margin-top:8px; }
+    .my-orders-toggle{ padding:9px; font-size:12px; }
+    .my-orders-panel{ padding:10px; max-height:180px; margin-top:8px; }
+  }
+
+  /* ---------- TOAST (push notification simulation) ---------- */
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--bg); padding:13px 20px; border-radius:12px;
+    font-size:13.5px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    z-index:200; opacity:0; pointer-events:none; transition:all .3s ease;
+    display:flex; align-items:center; gap:10px; max-width:90vw;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- BOOKING ---------- */
+  .booking{
+    margin:60px 5vw 0; padding:40px 5vw; background:var(--ink); color:var(--bg);
+    border-radius:20px;
+  }
+  .booking-inner{ max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+  @media (max-width:800px){ .booking-inner{ grid-template-columns:1fr; } }
+  .booking h2{ font-size:30px; font-weight:600; margin:0 0 12px; }
+  .booking p{ color:#C9BEB2; line-height:1.6; font-size:15px; max-width:400px; }
+  .b-form{ display:grid; gap:12px; }
+  .b-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .b-form label{ font-size:12px; color:#C9BEB2; font-weight:700; text-transform:uppercase; letter-spacing:.04em; display:block; margin-bottom:5px;}
+  .b-form input, .b-form select{
+    width:100%; padding:11px 12px; border-radius:8px; border:1px solid #4A392F;
+    background:#332319; color:#fff; font-family:'Manrope',sans-serif; font-size:14px;
+  }
+  .b-form input::placeholder{ color:#8A7669; }
+  .b-submit{
+    margin-top:6px; padding:13px; border:none; border-radius:9px; background:var(--saffron);
+    color:#241512; font-weight:800; font-size:14.5px; cursor:pointer;
+  }
+  .b-confirm{
+    display:none; margin-top:6px; padding:12px 14px; background:#274B3E; color:#B9E8C9;
+    border-radius:8px; font-size:13.5px; font-weight:600;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    margin-top:64px; padding:40px 5vw 24px; border-top:1px solid var(--line);
+  }
+  .footer-top{
+    display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:32px; margin-bottom:28px;
+  }
+  @media (max-width:700px){ .footer-top{ grid-template-columns:1fr; gap:26px; } }
+  footer .wordmark{ font-size:18px; display:block; margin-bottom:8px; }
+  .footer-tagline{ font-size:13px; color:var(--ink-soft); line-height:1.5; max-width:280px; margin:0; }
+  .footer-col h4{ font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin:0 0 12px; font-weight:700; }
+  .contact-link{
+    display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink);
+    text-decoration:none; margin-bottom:10px; font-weight:600;
+  }
+  .contact-link:hover{ color:var(--spice); }
+  .contact-icon{ font-size:15px; flex:none; }
+  .owner-cta{ font-size:13.5px; color:var(--ink-soft); line-height:1.7; }
+  .owner-cta a{ color:var(--teal); font-weight:700; text-decoration:none; }
+  .footer-bottom{
+    border-top:1px solid var(--line); padding-top:18px; font-size:12px; color:var(--ink-soft); text-align:center;
+  }
+
+  /* ---------- SIMILAR ITEMS & REORDER ---------- */
+  .similar{ margin-top:22px; padding-top:18px; border-top:1px solid var(--line); }
+  .similar h3{ font-size:15px; margin:0 0 10px; font-weight:700; }
+  .similar-row{
+    display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;
+    scroll-snap-type:x mandatory; scroll-padding-left:2px;
+  }
+  .similar-row::-webkit-scrollbar{ height:0; }
+  .similar-card{
+    flex:0 0 128px; background:var(--paper); border:1px solid var(--line); border-radius:10px;
+    padding:10px; cursor:pointer; transition:border-color .15s ease;
+    scroll-snap-align:start; scroll-snap-stop:always;
+  }
+  .similar-card:hover{ border-color:var(--spice); }
+  .similar-card .em{
+    font-size:24px; margin-bottom:4px; line-height:1;
+    height:44px; display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden; border-radius:7px;
+  }
+  .similar-card .nm{ font-size:11.5px; font-weight:700; margin-bottom:1px; }
+  .similar-card .rest{ font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--ink-soft); margin-bottom:7px; }
+  .similar-row-bottom{ display:flex; align-items:center; justify-content:space-between; gap:5px; }
+  .similar-card .pr{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; }
+  .similar-add{
+    width:22px; height:22px; border-radius:50%; flex:0 0 22px;
+    background:var(--spice); color:#fff; border:none; font-size:14px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 3px 8px rgba(193,63,43,0.35);
+  }
+
+  .reorder-bar{
+    display:none; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--paper); border:1px solid var(--line); border-radius:12px;
+    padding:14px 16px; margin:0 5vw 0; max-width:90vw; flex-wrap:wrap;
+  }
+  .reorder-bar span{ font-size:13.5px; word-break:break-word; }
+  .reorder-bar b{ display:block; font-size:14.5px; }
+  .reorder-btn{
+    background:var(--ink); color:var(--bg); border:none; border-radius:8px;
+    padding:9px 16px; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap;
+  }
+  @media (max-width:480px){
+    .reorder-bar{ flex-direction:column; align-items:flex-start; }
+    .reorder-btn{ width:100%; }
+  }
+
+  /* ---------- SKELETON LOADING ---------- */
+  .skel{
+    background:linear-gradient(90deg, var(--line) 25%, #f0e9db 37%, var(--line) 63%);
+    background-size:400% 100%; animation:skel-shine 1.3s ease infinite; border-radius:8px;
+  }
+  @keyframes skel-shine{ 0%{background-position:100% 0;} 100%{background-position:0 0;} }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; scroll-behavior:auto !important; }
+  }
+
+  .b-form select, #orderCustomerName, #orderCustomerPhone, #orderTable{
+    width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:8px;
+    background:var(--paper); color:var(--ink); font-family:inherit; font-size:12.5px;
+  }
+  #orderCustomerName, #orderCustomerPhone, #orderTable{ margin-top:7px; }
+  #orderTable{ appearance:auto; }
+</style>
+
+<style id="modern-restaurant-design">
+/* =========================================================
+   DASTURXON — MODERN 2026 RESTAURANT UI
+   Existing HTML/JS functionality is preserved.
+   ========================================================= */
+
+:root{
+  --bg:#f6f7f5;
+  --paper:#ffffff;
+  --ink:#151816;
+  --ink-soft:#69716c;
+  --spice:#e4572e;
+  --spice-dark:#c94320;
+  --saffron:#f4b942;
+  --teal:#287f72;
+  --line:#e7ebe8;
+  --radius:20px;
+  --shadow:0 12px 40px rgba(19,28,23,.08);
+  --shadow-lg:0 24px 70px rgba(19,28,23,.13);
+}
+
+body[data-theme="dark"]{
+  --bg:#0e1210;
+  --paper:#171c19;
+  --ink:#f4f7f4;
+  --ink-soft:#9da8a1;
+  --line:#29312c;
+  --spice:#ff7047;
+  --spice-dark:#e95730;
+  --saffron:#f4c35e;
+  --teal:#54b6a4;
+  --shadow:0 12px 40px rgba(0,0,0,.25);
+  --shadow-lg:0 24px 70px rgba(0,0,0,.38);
+}
+
+*{box-sizing:border-box}
+body{
+  background:
+    radial-gradient(circle at 10% 0%, rgba(228,87,46,.055), transparent 30%),
+    var(--bg);
+  color:var(--ink);
+  font-family:'Manrope',sans-serif;
+}
+h1,h2,h3,.wordmark{font-family:'Manrope',sans-serif}
+button,input,select,textarea{font-family:inherit}
+
+/* NAV */
+header.nav{
+  position:sticky;
+  top:0;
+  width:100%;
+  padding:14px clamp(18px,5vw,72px);
+  background:color-mix(in srgb, var(--paper) 86%, transparent);
+  border-bottom:1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+}
+.wordmark{
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:-.055em;
+}
+.wordmark span{color:var(--spice)}
+.nav-links{gap:9px}
+.nav-links>a:not(.theme-toggle){
+  padding:10px 13px;
+  border-radius:12px;
+  transition:.2s ease;
+}
+.nav-links>a:not(.theme-toggle):hover{
+  background:var(--bg);
+  color:var(--ink);
+}
+.theme-toggle{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  box-shadow:none;
+}
+.city-pill{
+  padding:9px 14px;
+  border-radius:12px;
+  background:var(--ink);
+  color:var(--bg);
+  border:none;
+}
+.lang-switch{
+  border-color:var(--line);
+  border-radius:12px;
+}
+.lang-switch button{
+  padding:9px 10px;
+  background:var(--paper);
+}
+.lang-switch button.active{
+  background:var(--spice);
+  color:#fff;
+}
+
+/* HERO */
+.hero{
+  max-width:none;
+  min-height:470px;
+  margin:0;
+  padding:clamp(70px,10vw,120px) clamp(20px,7vw,100px);
+  position:relative;
+  overflow:hidden;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  isolation:isolate;
+  background:
+    linear-gradient(90deg,rgba(8,12,10,.84) 0%,rgba(8,12,10,.62) 46%,rgba(8,12,10,.20) 100%),
+    url("https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=2000&q=85")
+    center/cover;
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  inset:auto 0 0;
+  height:100px;
+  background:linear-gradient(transparent,var(--bg));
+  z-index:-1;
+}
+.hero>*{position:relative;z-index:2}
+.eyebrow{
+  width:max-content;
+  color:#fff;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.22);
+  backdrop-filter:blur(10px);
+  border-radius:999px;
+  padding:8px 13px;
+  margin-bottom:20px;
+  font-family:'Manrope',sans-serif;
+  font-size:11px;
+  font-weight:800;
+}
+.hero h1{
+  max-width:760px;
+  font-size:clamp(48px,7vw,88px);
+  line-height:.98;
+  font-weight:900;
+  letter-spacing:-.065em;
+  margin:0 0 22px;
+}
+.hero h1 em{
+  color:#ff9a72;
+  font-style:normal;
+}
+.hero p{
+  max-width:620px;
+  color:rgba(255,255,255,.80);
+  font-size:17px;
+  line-height:1.7;
+  margin-bottom:30px;
+}
+.search-row{margin-bottom:13px}
+#searchInput{
+  max-width:650px;
+  padding:17px 20px 17px 48px;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:16px;
+  background:rgba(255,255,255,.13);
+  color:#fff;
+  backdrop-filter:blur(14px);
+  box-shadow:0 12px 40px rgba(0,0,0,.15);
+  font-size:15px;
+}
+#searchInput::placeholder{color:rgba(255,255,255,.68)}
+#searchInput:focus{
+  border-color:rgba(255,255,255,.55);
+  outline:none;
+}
+.filter-row{gap:8px}
+.chip{
+  padding:10px 16px;
+  border-radius:999px;
+  background:rgba(255,255,255,.11);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.20);
+  backdrop-filter:blur(10px);
+}
+.chip:hover,.chip.active{
+  background:#fff;
+  border-color:#fff;
+  color:#151816;
+}
+
+/* RESTAURANT CARDS */
+.r-strip{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:18px;
+  overflow:visible;
+  padding:34px clamp(20px,6vw,88px) 10px;
+}
+.r-card{
+  min-width:0;
+  flex:none;
+  padding:0 0 18px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:var(--paper);
+  box-shadow:var(--shadow);
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.r-card:hover{
+  transform:translateY(-6px);
+  box-shadow:var(--shadow-lg);
+}
+.r-card.active{
+  border-color:var(--spice);
+  box-shadow:0 0 0 3px rgba(228,87,46,.12),var(--shadow);
+}
+.r-thumb{
+  height:170px;
+  margin:0;
+  border-radius:0;
+  font-size:58px;
+  background-size:cover!important;
+}
+.r-card .fav-btn{
+  top:13px;
+  right:13px;
+  width:38px;
+  height:38px;
+  background:rgba(255,255,255,.90);
+  box-shadow:0 7px 20px rgba(0,0,0,.12);
+}
+.open-badge{
+  bottom:12px;
+  left:12px;
+  padding:6px 10px;
+  font-size:10px;
+  backdrop-filter:blur(8px);
+}
+.r-card h3{
+  margin:15px 16px 5px;
+  font-size:18px;
+  letter-spacing:-.03em;
+}
+.r-tag,.r-meta{margin-left:16px;margin-right:16px}
+.r-tag{margin-bottom:5px}
+
+/* MAIN */
+.main-grid{
+  grid-template-columns:minmax(0,1.55fr) minmax(330px,.72fr);
+  gap:34px;
+  padding:48px clamp(20px,6vw,88px) 15px;
+  max-width:1500px;
+  margin:auto;
+}
+.menu-head{margin-bottom:8px}
+.menu-head h2{
+  font-size:32px;
+  letter-spacing:-.045em;
+}
+.menu-sub{font-size:14px;margin-bottom:24px}
+
+/* MENU ITEMS */
+.menu-item{
+  display:grid;
+  grid-template-columns:92px 1fr auto;
+  gap:16px;
+  align-items:center;
+  padding:14px;
+  margin-bottom:12px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:var(--paper);
+  box-shadow:0 6px 25px rgba(20,30,24,.045);
+  transition:.22s ease;
+}
+.menu-item:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--shadow);
+  border-color:color-mix(in srgb,var(--spice) 30%,var(--line));
+}
+.mi-emoji{
+  width:92px;
+  height:92px;
+  border-radius:14px;
+  font-size:35px;
+}
+.mi-info h4{
+  font-size:16px;
+  margin-bottom:5px;
+  letter-spacing:-.02em;
+}
+.mi-info p{
+  font-size:12.5px;
+  line-height:1.5;
+}
+.mi-action{
+  margin-top:7px;
+  justify-content:flex-start;
+}
+.mi-price{font-size:15px}
+.add-btn{
+  width:38px;
+  height:38px;
+  flex-basis:38px;
+  background:var(--spice);
+  box-shadow:0 7px 18px rgba(228,87,46,.25);
+}
+.discount-tag{
+  font-size:9px;
+  border-radius:999px;
+  padding:4px 7px;
+}
+@media(max-width:700px){
+  .menu-item{
+    grid-template-columns:72px 1fr;
+  }
+  .mi-emoji{width:72px;height:72px}
+  .mi-action{grid-column:2}
+}
+
+/* REVIEWS */
+.reviews{
+  margin-top:34px;
+  padding:28px 0 0;
+}
+.review{
+  padding:15px 0;
+}
+.review-avatar{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+}
+.review-text{line-height:1.65}
+
+/* CART / RECEIPT */
+.ticket-wrap{top:100px}
+.ticket{
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:24px 22px 5px;
+  box-shadow:var(--shadow-lg);
+  overflow:hidden;
+}
+.ticket::after{
+  display:none;
+}
+.ticket-top .t-name{
+  font-family:'Manrope',sans-serif;
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:.06em;
+}
+.ticket-divider{margin:18px 0}
+.t-line{font-size:12px}
+.t-totals .row.jami{
+  font-size:18px;
+}
+.order-btn{
+  padding:15px;
+  border-radius:13px;
+  font-size:15px;
+  box-shadow:0 10px 24px rgba(228,87,46,.23);
+}
+.pay-opt{
+  border-radius:10px;
+  padding:9px 12px;
+}
+.courier-note{
+  border-radius:11px;
+  padding:11px 12px;
+}
+.my-orders-toggle{
+  border-radius:13px;
+  padding:13px;
+  box-shadow:0 5px 18px rgba(20,30,24,.04);
+}
+
+/* BOOKING */
+.booking{
+  max-width:1360px;
+  margin:75px auto 0;
+  padding:58px clamp(24px,6vw,80px);
+  border-radius:30px;
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(100deg,rgba(17,24,20,.97),rgba(17,24,20,.88)),
+    url("https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1800&q=80")
+    center/cover;
+  box-shadow:var(--shadow-lg);
+}
+.booking-inner{
+  max-width:none;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  gap:70px;
+}
+.booking h2{
+  font-size:clamp(34px,4vw,52px);
+  letter-spacing:-.055em;
+}
+.booking p{
+  color:#b9c1bb;
+  font-size:15px;
+  line-height:1.75;
+}
+.b-form{gap:14px}
+.b-form input,.b-form select{
+  padding:13px 14px;
+  border-radius:12px;
+  border:1px solid #3b453f;
+  background:rgba(255,255,255,.07);
+  color:#fff;
+}
+.b-form input:focus,.b-form select:focus{
+  outline:none;
+  border-color:#6c8278;
+}
+.b-form label{
+  color:#aeb8b1;
+  font-size:11px;
+}
+.b-submit{
+  padding:14px;
+  border-radius:12px;
+  background:var(--spice);
+  color:#fff;
+  box-shadow:0 10px 25px rgba(228,87,46,.20);
+}
+.b-confirm{
+  border-radius:11px;
+}
+
+/* FOOTER */
+footer{
+  margin-top:80px;
+  padding:55px clamp(20px,6vw,88px) 25px;
+  background:var(--paper);
+  border-top:1px solid var(--line);
+}
+.footer-top{
+  max-width:1360px;
+  margin:auto;
+}
+footer .wordmark{font-size:23px}
+.footer-tagline{line-height:1.7}
+.footer-col h4{letter-spacing:.08em}
+.contact-link{
+  padding:4px 0;
+}
+
+/* SIMILAR */
+.similar-card{
+  border-radius:15px;
+  box-shadow:0 5px 18px rgba(20,30,24,.04);
+}
+.similar-card:hover{transform:translateY(-2px)}
+
+/* TOAST */
+.toast{
+  bottom:25px;
+  border-radius:14px;
+  padding:14px 19px;
+  box-shadow:var(--shadow-lg);
+}
+
+/* DARK MODE IMAGE / HERO */
+body[data-theme="dark"] .hero{
+  background:
+    linear-gradient(90deg,rgba(4,7,5,.90),rgba(4,7,5,.68),rgba(4,7,5,.25)),
+    url("https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=2000&q=85")
+    center/cover;
+}
+body[data-theme="dark"] .r-card .fav-btn{
+  background:rgba(20,25,22,.88);
+  color:#fff;
+}
+
+/* RESPONSIVE */
+@media(max-width:1050px){
+  .r-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .main-grid{grid-template-columns:1fr}
+  .ticket-wrap{position:static}
+}
+@media(max-width:720px){
+  header.nav{padding:11px 16px}
+  .nav-links{gap:5px}
+  .nav-links a[href="#restoranlar"],
+  .nav-links a[href="#bron"]{display:none}
+  .city-pill{padding:9px 11px}
+  .hero{
+    min-height:560px;
+    padding:80px 20px 70px;
+  }
+  .hero h1{font-size:52px}
+  .hero p{font-size:15px}
+  #searchInput{padding:15px 16px}
+  .r-strip{
+    display:flex;
+    overflow-x:auto;
+    padding:25px 20px 8px;
+  }
+  .r-card{flex:0 0 275px}
+  .r-thumb{height:155px}
+  .main-grid{padding:35px 20px 10px}
+  .booking{
+    margin:55px 12px 0;
+    padding:40px 22px;
+    border-radius:24px;
+  }
+  .booking-inner{grid-template-columns:1fr;gap:25px}
+  .b-row{grid-template-columns:1fr}
+  footer{margin-top:55px}
+}
+@media(max-width:430px){
+  .hero h1{font-size:45px}
+  .menu-item{padding:11px}
+  .mi-emoji{width:65px;height:65px}
+  .menu-head h2{font-size:28px}
+}
+</style>
+
+</head>
+<body>
+
+<header class="nav">
+  <a href="#" class="wordmark">Dastur<span>xon</span></a>
+  <div class="nav-links">
+    <a href="#restoranlar" data-i18n="navRest">Restoranlar</a>
+    <a href="#bron" data-i18n="navBook">Stol bron qilish</a>
+    <a href="dasturxon-admin.html" data-i18n="navOwner">Saytdan chiqish</a>
+    <div class="lang-switch" id="langSwitch">
+      <button data-lang="uz" class="active">UZ</button>
+      <button data-lang="ru">RU</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <button class="theme-toggle" id="themeToggle" title="Tungi rejim">🌙</button>
+    <a href="https://t.me/dasturxon_uz" target="_blank" rel="noopener" class="theme-toggle" title="Telegram">✈</a>
+    <div class="city-pill">📍 <span class="city-text">Toshkent</span></div>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="eyebrow" data-i18n="eyebrow">Demo — g'oyaning ko'rinishi</span>
+  <h1 data-i18n-html="heroTitle">Bugun nima <em>yeymiz</em>?</h1>
+  <p data-i18n="heroSub">Mahalliy restoran va kafelarni bitta joydan tanlang, buyurtma bering yoki stol bron qiling. Quyida — ishlab turgan kichik namuna.</p>
+  <div class="search-row">
+    <input type="text" id="searchInput" data-i18n-placeholder="searchPh" placeholder="Restoran yoki taom qidirish…">
+  </div>
+  <div class="filter-row" id="filters">
+    <button class="chip active" data-tag="Barchasi" data-i18n="chipAll">Barchasi</button>
+    <button class="chip" data-tag="Milliy" data-i18n="chipMilliy">Milliy taomlar</button>
+    <button class="chip" data-tag="Grill" data-i18n="chipGrill">Grill</button>
+    <button class="chip" data-tag="Fast-food" data-i18n="chipFast">Fast-food</button>
+    <button class="chip" data-tag="Sevimli" data-i18n="chipFav">❤ Sevimlilar</button>
+  </div>
+</section>
+
+<div class="reorder-bar" id="reorderBar">
+  <span><span data-i18n="reorderLabel">Oxirgi buyurtmangiz —</span> <b id="reorderText"></b></span>
+  <button class="reorder-btn" id="reorderBtn" data-i18n="reorderBtn">Takrorlash</button>
+</div>
+
+<div class="r-strip" id="restoranlar"></div>
+
+<div class="main-grid">
+  <div>
+    <div class="menu-head">
+      <h2 id="menuTitle">Menyu</h2>
+      <span class="rating" id="menuRating"></span>
+    </div>
+    <p class="menu-sub" id="menuSub"></p>
+    <div id="menuList"></div>
+    <div class="reviews">
+      <h3 data-i18n="reviewsTitle">Sharhlar</h3>
+      <div id="reviewsList"></div>
+    </div>
+    <div class="similar">
+      <h3 data-i18n="similarTitle">O'xshash taomlar</h3>
+      <div class="similar-row" id="similarRow"></div>
+    </div>
+  </div>
+
+  <div class="ticket-wrap">
+    <div class="ticket">
+      <div class="ticket-top">
+        <div class="t-name" data-i18n="ticketHead">DASTURXON — CHEK</div>
+        <div class="t-sub" id="ticketRestName" data-i18n="ticketNoRest">restoran tanlanmagan</div>
+      </div>
+      <hr class="ticket-divider">
+      <div id="ticketBody"><div class="t-empty" data-i18n="ticketEmpty">Chek bo'sh. Menyudan taom qo'shing →</div></div>
+      <div id="ticketTotals"></div>
+      <div id="ticketExtras" style="display:none;">
+        <div class="pay-row">
+          <span class="pay-label">Mijoz ma'lumotlari</span>
+          <input type="text" id="orderCustomerName" class="courier-note" style="margin-top:0;" required placeholder="Ism familiya">
+          <input type="tel" id="orderCustomerPhone" class="courier-note" required placeholder="+998 90 123 45 67">
+          <select id="orderTable" class="courier-note" required><option value="">Stol raqami</option></select>
+        </div>
+        <div class="pay-row">
+          <span class="pay-label" data-i18n="addressLabel">Yetkazib berish manzili</span>
+          <input type="text" id="deliveryAddress" class="courier-note" style="margin-top:0;" data-i18n-placeholder="addressPh" placeholder="Ko'cha, uy, kvartira (ixtiyoriy)">
+        </div>
+        <div class="pay-row">
+          <span class="pay-label" data-i18n="payLabel">To'lov usuli</span>
+          <div class="pay-options" id="payOptions">
+            <button type="button" class="pay-opt active" data-pay="cash" data-i18n="payCash">💵 Naqd</button>
+            <button type="button" class="pay-opt" data-pay="card" data-i18n="payCard">💳 Karta</button>
+            <button type="button" class="pay-opt" data-pay="click" data-i18n="payClick">📲 Payme/Click</button>
+          </div>
+        </div>
+        <textarea id="courierNote" class="courier-note" rows="1" data-i18n-placeholder="notePh" placeholder="Kuryerga izoh (ixtiyoriy) — masalan: qo'ng'iroq qilmang"></textarea>
+      </div>
+      <div id="statusTracker" style="display:none;"></div>
+      <button class="order-btn" id="orderBtn" disabled data-i18n="orderBtn">Buyurtma berish</button>
+    </div>
+
+    <div class="my-orders-block">
+      <button class="my-orders-toggle" id="myOrdersToggle" data-i18n="myOrdersToggle">📜 Mening buyurtmalarim</button>
+      <div class="my-orders-panel" id="myOrdersPanel" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<section class="booking" id="bron">
+  <div class="booking-inner">
+    <div>
+      <h2 data-i18n="bookTitle">Stol bron qiling</h2>
+      <p data-i18n="bookSub">Navbatda turmang. Sana va vaqtni tanlang, biz joyingizni belgilab qo'yamiz — tasdiqlash SMS orqali keladi.</p>
+    </div>
+    <form class="b-form" id="bookForm">
+      <div class="b-row">
+        <div>
+          <label data-i18n="bookDate">Sana</label>
+          <input type="date" id="bookDate" required>
+        </div>
+        <div>
+          <label data-i18n="bookTime">Vaqt</label>
+          <input type="time" id="bookTime" required value="19:00">
+        </div>
+      </div>
+      <div class="b-row">
+        <div>
+          <label data-i18n="bookGuests">Kishilar soni</label>
+          <input type="number" id="bookGuests" min="1" value="2" required>
+        </div>
+        <div>
+          <label data-i18n="bookPhone">Telefon</label>
+          <input type="tel" id="bookPhone" placeholder="+998 90 123 45 67" required>
+        </div>
+      </div>
+      <div>
+        <label>Stol raqami</label>
+        <select id="bookTable" required><option value="">Stolni tanlang</option></select>
+        <small id="tableAvailability" style="display:block;margin-top:6px;color:#777"></small>
+      </div>
+      <div>
+        <label data-i18n="bookName">Ism</label>
+        <input type="text" id="bookName" placeholder="Ismingiz" required>
+      </div>
+      <button type="submit" class="b-submit" data-i18n="bookSubmit">Bron qilish</button>
+      <div class="b-confirm" id="bConfirm" data-i18n="bookConfirm">✓ So'rov qabul qilindi — restoran tez orada tasdiqlaydi.</div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="wordmark">Dastur<span>xon</span></a>
+      <p class="footer-tagline" data-i18n="footerTagline">Mahalliy restoranlarni bir joyga jamlaydigan xizmat.</p>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-i18n="contactTitle">Bog'lanish</h4>
+      <a href="https://t.me/dasturxon_uz" target="_blank" rel="noopener" class="contact-link">
+        <span class="contact-icon">✈️</span> Telegram — @dasturxon_uz
+      </a>
+      <a href="tel:+998901234567" class="contact-link">
+        <span class="contact-icon">📞</span> +998 90 123 45 67
+      </a>
+      <a href="mailto:info@dasturxon.uz" class="contact-link">
+        <span class="contact-icon">✉️</span> info@dasturxon.uz
+      </a>
+      <a href="https://instagram.com/dasturxon.uz" target="_blank" rel="noopener" class="contact-link">
+        <span class="contact-icon">📷</span> Instagram — @dasturxon.uz
+      </a>
+    </div>
+
+    <div class="footer-col">
+      <h4 data-i18n="footerOwnerTitle">Restoran egalari uchun</h4>
+      <div class="owner-cta"><span data-i18n="navOwner">Restoran egasimisiz?</span><br><a href="admin.html" data-i18n="footerCta">Bepul ro'yxatdan o'ting →</a></div>
+    </div>
+  </div>
+  <div class="footer-bottom" data-i18n="footerCopy">© 2026 Dasturxon — demo namuna</div>
+</footer>
+
+<script>
+const restaurants = [
+  { id:1, name:"Osh Markazi", tag:"Milliy", emoji:"🍛", bg:"#F3E3D3", rating:"4.8 ★", time:"25–35 daq", open:true, photo:"rice",
+    items:[
+      {n:"Toshkent oshi", d:"Qo'y go'shti, sabzi, no'xat", p:38000, e:"🍛", bg:"#F3E3D3", disc:15, photo:"rice"},
+      {n:"Qozon kabob", d:"Bug'da pishirilgan go'sht va sabzavot", p:42000, e:"🥘", bg:"#EFDCC7", photo:"butter-chicken"},
+      {n:"Norin", d:"Qo'lda tortilgan xamir, ot go'shti", p:35000, e:"🍜", bg:"#F0E6D6", photo:"pasta"},
+      {n:"Achichuk salat", d:"Pomidor, piyoz", p:12000, e:"🥗", bg:"#E4EEDD"},
+      {n:"Ayron", d:"Sovutilgan, uy qatig'idan", p:8000, e:"🥛", bg:"#F5F1E8"},
+    ],
+    reviews:[
+      {name:"Dilnoza", stars:5, text:"Osh juda mazali, porsiyasi ham katta ekan."},
+      {name:"Jahongir", stars:4, text:"Yetkazib berish biroz kechikdi, lekin taom issiq keldi."},
+    ]},
+  { id:2, name:"Lag'mon Ustaxonasi", tag:"Milliy", emoji:"🍜", bg:"#F0E6D6", rating:"4.6 ★", time:"20–30 daq", open:true, photo:"pasta",
+    items:[
+      {n:"Qovurma lag'mon", d:"Qo'lda tortilgan, mol go'shti", p:32000, e:"🍜", bg:"#F0E6D6", photo:"pasta"},
+      {n:"Tortma lag'mon", d:"Sho'rvali versiya", p:30000, e:"🍲", bg:"#EFE0CC", photo:"pasta"},
+      {n:"Manti", d:"5 dona, qovoqli", p:28000, e:"🥟", bg:"#F5EEDF", disc:10, photo:"samosa"},
+      {n:"Chuchvara", d:"Qatiq bilan", p:26000, e:"🥟", bg:"#F2E9D8", photo:"samosa"},
+      {n:"Ko'k choy", d:"Choynak, 2 kishiga", p:6000, e:"🍵", bg:"#E4EEE4"},
+    ],
+    reviews:[
+      {name:"Malika", stars:5, text:"Qo'lda tortilgan lag'mon — uydagidek mazali."},
+      {name:"Sardor", stars:5, text:"Doim shu yerdan buyurtma qilaman, hech qachon xafa bo'lmaganman."},
+    ]},
+  { id:3, name:"Shashlik Olami", tag:"Grill", emoji:"🍢", bg:"#EAD4C4", rating:"4.7 ★", time:"30–40 daq", open:true, photo:"butter-chicken",
+    items:[
+      {n:"Qiyma shashlik", d:"2 six, ziravorlar bilan", p:24000, e:"🍢", bg:"#EAD4C4", photo:"butter-chicken"},
+      {n:"Jigar shashlik", d:"2 six", p:22000, e:"🍢", bg:"#E8CFC0", photo:"butter-chicken"},
+      {n:"Tovuq shashlik", d:"2 six, marinadlangan", p:20000, e:"🍗", bg:"#F1E1CE", disc:20, photo:"butter-chicken"},
+      {n:"Lavash", d:"Go'sht, sabzavot, sous", p:25000, e:"🌯", bg:"#EFE2CE", photo:"burger"},
+      {n:"Non", d:"Tandirdan, issiq", p:5000, e:"🍞", bg:"#F5EBD9"},
+    ],
+    reviews:[
+      {name:"Otabek", stars:4, text:"Go'shti yumshoq, lekin biroz shortoq edi."},
+      {name:"Kamola", stars:5, text:"Tovuq shashlik zo'r, chegirma bilan juda arzon bo'ldi."},
+    ]},
+  { id:4, name:"Bellissimo Pizza", tag:"Fast-food", emoji:"🍕", bg:"#F2DCCB", rating:"4.5 ★", time:"25–35 daq", open:false, photo:"pizza",
+    items:[
+      {n:"Margarita pitsa", d:"32 sm, pomidor sousi, mozzarella", p:45000, e:"🍕", bg:"#F2DCCB", photo:"pizza"},
+      {n:"Pepperoni pitsa", d:"32 sm", p:52000, e:"🍕", bg:"#F0D6C2", photo:"pizza"},
+      {n:"Sezar salat", d:"Tovuq, parmezan", p:28000, e:"🥗", bg:"#E7EFDE"},
+      {n:"Kartoshka fri", d:"O'rta porsiya", p:14000, e:"🍟", bg:"#F6E9CE"},
+      {n:"Kola", d:"0.5 l", p:8000, e:"🥤", bg:"#F2E2D5"},
+    ],
+    reviews:[
+      {name:"Aziza", stars:4, text:"Pitsa yaxshi, lekin tez-tez band bo'lib qoladi."},
+    ]},
+];
+
+// ---------- Apply admin panel menu overrides (deletions / price / new items) ----------
+// Keep a pristine copy of the original menu so re-applying overrides is always
+// deterministic, no matter how many times it runs or in what order edits happen.
+const PRISTINE_RESTAURANTS = JSON.parse(JSON.stringify(restaurants));
+let lastMenuSnapshot = null;
+
+function applyMenuOverrides(){
+  const raw = localStorage.getItem('dasturxon-menu');
+  if(raw === lastMenuSnapshot) return false; // nothing changed since last check
+  lastMenuSnapshot = raw;
+  try{
+    const override = JSON.parse(raw);
+    restaurants.forEach((r, ri)=>{
+      const pristineItems = JSON.parse(JSON.stringify(PRISTINE_RESTAURANTS[ri].items));
+      if(!Array.isArray(override) || override.length === 0){
+        r.items = pristineItems;
+        return;
+      }
+      const allowedForRest = override.filter(m => m.rest === r.name);
+      const allowedNames = new Set(allowedForRest.map(m => m.n));
+      // start from the original menu, keep only items admin still allows, sync price
+      r.items = pristineItems.filter(it => allowedNames.has(it.n));
+      r.items.forEach(it=>{
+        const match = allowedForRest.find(m => m.n === it.n);
+        if(match) it.p = match.p;
+      });
+      // add items admin created that don't exist in the default data
+      allowedForRest.forEach(m=>{
+        if(!r.items.find(it => it.n === m.n)){
+          r.items.push({ n:m.n, d:"", p:m.p, e:"🍽", bg:r.bg });
+        }
+      });
+    });
+  }catch(e){ /* if anything goes wrong, keep the current menu — never break the page */ }
+  return true;
+}
+applyMenuOverrides();
+
+let activeRestaurant = restaurants[0];
+let cart = {}; // key: "restId-itemName" -> {item, qty, restId}
+
+// ---------- Real food photos (Foodish API — free, no key, made for embedding) ----------
+let foodPhotos = {};
+async function loadFoodPhotos(){
+  const categories = new Set();
+  restaurants.forEach(r=>{
+    if(r.photo) categories.add(r.photo);
+    r.items.forEach(it=>{ if(it.photo) categories.add(it.photo); });
+  });
+  await Promise.all([...categories].map(async cat=>{
+    try{
+      const res = await fetch(`https://foodish-api.com/api/images/${cat}`);
+      if(!res.ok) return;
+      const data = await res.json();
+      const url = data.image || (Array.isArray(data.images) ? data.images[0] : null) || (Array.isArray(data) ? data[0] : null);
+      if(url) foodPhotos[cat] = url;
+    }catch(e){ /* no internet or blocked — emoji stays as fallback, no crash */ }
+  }));
+  // re-render whatever is currently visible now that photos may be available
+  try{
+    renderAll(document.querySelector('.chip.active').dataset.tag);
+  }catch(e){}
+}
+function photoImgHtml(item){
+  if(item.photo && foodPhotos[item.photo]){
+    return `<img src="${foodPhotos[item.photo]}" loading="lazy" alt="" class="real-photo" onerror="this.style.display='none'">`;
+  }
+  return '';
+}
+let favorites = new Set();
+let searchQuery = '';
+let currentLang = 'uz';
+
+const I18N = {
+  uz:{
+    navRest:"Restoranlar", navBook:"Stol bron qilish", navOwner:"Saytdan chiqish",
+    eyebrow:"Demo — g'oyaning ko'rinishi",
+    heroTitle:'Bugun nima <em>yeymiz</em>?',
+    heroSub:"Mahalliy restoran va kafelarni bitta joydan tanlang, buyurtma bering yoki stol bron qiling. Quyida — ishlab turgan kichik namuna.",
+    searchPh:"Restoran yoki taom qidirish…",
+    chipAll:"Barchasi", chipMilliy:"Milliy taomlar", chipGrill:"Grill", chipFast:"Fast-food", chipFav:"❤ Sevimlilar",
+    reorderLabel:"Oxirgi buyurtmangiz —", reorderBtn:"Takrorlash",
+    reviewsTitle:"Sharhlar", similarTitle:"O'xshash taomlar",
+    ticketHead:"DASTURXON — CHEK", ticketNoRest:"restoran tanlanmagan", ticketEmpty:"Chek bo'sh. Menyudan taom qo'shing →",
+    totalItems:"Taomlar", totalService:"Xizmat haqi (10%)", totalJami:"Jami", orderBtn:"Buyurtma berish",
+    statusAccepted:"Qabul qilindi", statusPreparing:"Tayyorlanmoqda", statusOnWay:"Yo'lda", statusDelivered:"Yetkazildi",
+    bookTitle:"Stol bron qiling",
+    bookSub:"Navbatda turmang. Sana va vaqtni tanlang, biz joyingizni belgilab qo'yamiz — tasdiqlash SMS orqali keladi.",
+    bookDate:"Sana", bookTime:"Vaqt", bookGuests:"Kishilar soni", bookPhone:"Telefon", bookName:"Ism",
+    bookSubmit:"Bron qilish", bookConfirm:"✓ So'rov qabul qilindi — restoran tez orada tasdiqlaydi.",
+    footerCta:"Bepul ro'yxatdan o'ting →",
+    footerTagline:"Mahalliy restoranlarni bir joyga jamlaydigan xizmat.",
+    contactTitle:"Bog'lanish", footerOwnerTitle:"Restoran egalari uchun",
+    footerCopy:"© 2026 Dasturxon — demo namuna",
+    badgeOpen:"Ochiq", badgeClosed:"Yopiq", openNow:"hozir ochiq", closedNow:"hozir yopiq",
+    delivery:"yetkazish", noResults:"Hech narsa topilmadi.", unit:"daq", currency:"so'm",
+    themeTitle:"Tungi rejim",
+    payLabel:"To'lov usuli", payCash:"💵 Naqd", payCard:"💳 Karta", payClick:"📲 Payme/Click",
+    addressLabel:"Yetkazib berish manzili", addressPh:"Ko'cha, uy, kvartira",
+    notePh:"Kuryerga izoh (ixtiyoriy) — masalan: qo'ng'iroq qilmang",
+    myOrdersToggle:"📜 Mening buyurtmalarim", myOrdersEmpty:"Hali buyurtmalar yo'q.",
+    toastPlaced:"✓ Buyurtma qabul qilindi!", toastReady:"🔔 Buyurtmangiz yetkazildi!",
+  },
+  ru:{
+    navRest:"Рестораны", navBook:"Забронировать стол", navOwner:"покинуть сайт",
+    eyebrow:"Демо — концепция сайта",
+    heroTitle:'Что <em>поедим</em> сегодня?',
+    heroSub:"Выбирайте местные рестораны и кафе в одном месте, заказывайте еду или бронируйте стол. Ниже — работающий пример.",
+    searchPh:"Поиск ресторана или блюда…",
+    chipAll:"Все", chipMilliy:"Нац. кухня", chipGrill:"Гриль", chipFast:"Фастфуд", chipFav:"❤ Избранное",
+    reorderLabel:"Ваш последний заказ —", reorderBtn:"Повторить",
+    reviewsTitle:"Отзывы", similarTitle:"Похожие блюда",
+    ticketHead:"DASTURXON — ЧЕК", ticketNoRest:"ресторан не выбран", ticketEmpty:"Чек пуст. Добавьте блюдо из меню →",
+    totalItems:"Блюда", totalService:"Сервисный сбор (10%)", totalJami:"Итого", orderBtn:"Оформить заказ",
+    statusAccepted:"Принят", statusPreparing:"Готовится", statusOnWay:"В пути", statusDelivered:"Доставлен",
+    bookTitle:"Забронируйте стол",
+    bookSub:"Не стойте в очереди. Выберите дату и время — мы закрепим за вами место, подтверждение придёт по SMS.",
+    bookDate:"Дата", bookTime:"Время", bookGuests:"Количество гостей", bookPhone:"Телефон", bookName:"Имя",
+    bookSubmit:"Забронировать", bookConfirm:"✓ Заявка принята — ресторан скоро подтвердит.",
+    footerCta:"Зарегистрируйтесь бесплатно →",
+    footerTagline:"Сервис, объединяющий местные рестораны в одном месте.",
+    contactTitle:"Связаться", footerOwnerTitle:"Для владельцев ресторанов",
+    footerCopy:"© 2026 Dasturxon — демо-пример",
+    badgeOpen:"Открыто", badgeClosed:"Закрыто", openNow:"сейчас открыто", closedNow:"сейчас закрыто",
+    delivery:"доставка", noResults:"Ничего не найдено.", unit:"мин", currency:"сум",
+    themeTitle:"Ночной режим",
+    payLabel:"Способ оплаты", payCash:"💵 Наличные", payCard:"💳 Карта", payClick:"📲 Payme/Click",
+    addressLabel:"Адрес доставки", addressPh:"Улица, дом, квартира",
+    notePh:"Комментарий курьеру (необязательно) — например: не звоните",
+    myOrdersToggle:"📜 Мои заказы", myOrdersEmpty:"Пока заказов нет.",
+    toastPlaced:"✓ Заказ принят!", toastReady:"🔔 Ваш заказ доставлен!",
+  },
+  en:{
+    navRest:"Restaurants", navBook:"Book a table", navOwner:"exit from the page",
+    eyebrow:"Demo — concept preview",
+    heroTitle:'What are we <em>eating</em> today?',
+    heroSub:"Browse local restaurants and cafés in one place, order food, or book a table. Below is a working sample.",
+    searchPh:"Search restaurant or dish…",
+    chipAll:"All", chipMilliy:"National cuisine", chipGrill:"Grill", chipFast:"Fast food", chipFav:"❤ Favorites",
+    reorderLabel:"Your last order —", reorderBtn:"Reorder",
+    reviewsTitle:"Reviews", similarTitle:"You might also like",
+    ticketHead:"DASTURXON — RECEIPT", ticketNoRest:"no restaurant selected", ticketEmpty:"Receipt is empty. Add a dish from the menu →",
+    totalItems:"Items", totalService:"Service fee (10%)", totalJami:"Total", orderBtn:"Place order",
+    statusAccepted:"Accepted", statusPreparing:"Preparing", statusOnWay:"On the way", statusDelivered:"Delivered",
+    bookTitle:"Book a table",
+    bookSub:"Skip the line. Pick a date and time and we'll hold your spot — confirmation arrives by SMS.",
+    bookDate:"Date", bookTime:"Time", bookGuests:"Guests", bookPhone:"Phone", bookName:"Name",
+    bookSubmit:"Book table", bookConfirm:"✓ Request received — the restaurant will confirm shortly.",
+    footerCta:"Sign up for free →",
+    footerTagline:"A service that brings local restaurants together in one place.",
+    contactTitle:"Contact", footerOwnerTitle:"For restaurant owners",
+    footerCopy:"© 2026 Dasturxon — demo sample",
+    badgeOpen:"Open", badgeClosed:"Closed", openNow:"open now", closedNow:"closed now",
+    delivery:"delivery", noResults:"Nothing found.", unit:"min", currency:"UZS",
+    themeTitle:"Dark mode",
+    payLabel:"Payment method", payCash:"💵 Cash", payCard:"💳 Card", payClick:"📲 Payme/Click",
+    addressLabel:"Delivery address", addressPh:"Street, house, apartment",
+    notePh:"Note for courier (optional) — e.g. don't call",
+    myOrdersToggle:"📜 My orders", myOrdersEmpty:"No orders yet.",
+    toastPlaced:"✓ Order placed!", toastReady:"🔔 Your order was delivered!",
+  }
+};
+function t(key){ return (I18N[currentLang] && I18N[currentLang][key]) || I18N.uz[key] || key; }
+
+const TAG_TR = {
+  Milliy:{uz:"Milliy", ru:"Нац. кухня", en:"National"},
+  Grill:{uz:"Grill", ru:"Гриль", en:"Grill"},
+  "Fast-food":{uz:"Fast-food", ru:"Фастфуд", en:"Fast food"},
+};
+
+const ITEM_TR = {
+  "Toshkent oshi":{ru:"Ташкентский плов", en:"Tashkent Osh (Plov)", d:{ru:"Баранина, морковь, нут", en:"Lamb, carrots, chickpeas"}},
+  "Qozon kabob":{ru:"Казан-кабоб", en:"Qozon Kabob", d:{ru:"Мясо и овощи на пару", en:"Steamed meat and vegetables"}},
+  "Norin":{ru:"Норин", en:"Norin", d:{ru:"Тесто ручной работы, конина", en:"Hand-pulled dough, horse meat"}},
+  "Achichuk salat":{ru:"Салат ачичук", en:"Achichuk Salad", d:{ru:"Помидоры, лук", en:"Tomato, onion"}},
+  "Ayron":{ru:"Айран", en:"Ayran", d:{ru:"Охлаждённый, из домашнего катыка", en:"Chilled, homemade yogurt drink"}},
+  "Qovurma lag'mon":{ru:"Кавурма-лагман", en:"Fried Lagman", d:{ru:"Тесто ручной работы, говядина", en:"Hand-pulled noodles, beef"}},
+  "Tortma lag'mon":{ru:"Тортма-лагман", en:"Soup Lagman", d:{ru:"Суповая версия", en:"Soup version"}},
+  "Manti":{ru:"Манты", en:"Manti", d:{ru:"5 шт, с тыквой", en:"5 pcs, pumpkin filling"}},
+  "Chuchvara":{ru:"Чучвара", en:"Chuchvara", d:{ru:"С катыком", en:"Served with yogurt"}},
+  "Ko'k choy":{ru:"Зелёный чай", en:"Green Tea", d:{ru:"Чайник, на 2 персоны", en:"Pot, serves 2"}},
+  "Qiyma shashlik":{ru:"Шашлык из фарша", en:"Minced Kebab", d:{ru:"2 шампура, со специями", en:"2 skewers, spiced"}},
+  "Jigar shashlik":{ru:"Шашлык из печени", en:"Liver Kebab", d:{ru:"2 шампура", en:"2 skewers"}},
+  "Tovuq shashlik":{ru:"Куриный шашлык", en:"Chicken Kebab", d:{ru:"2 шампура, маринованный", en:"2 skewers, marinated"}},
+  "Lavash":{ru:"Лаваш", en:"Lavash Wrap", d:{ru:"Мясо, овощи, соус", en:"Meat, vegetables, sauce"}},
+  "Non":{ru:"Лепёшка", en:"Tandoor Bread", d:{ru:"Из тандыра, горячая", en:"Fresh from the tandoor"}},
+  "Margarita pitsa":{ru:"Пицца Маргарита", en:"Margherita Pizza", d:{ru:"32 см, томатный соус, моцарелла", en:"32cm, tomato sauce, mozzarella"}},
+  "Pepperoni pitsa":{ru:"Пицца Пепперони", en:"Pepperoni Pizza", d:{ru:"32 см", en:"32cm"}},
+  "Sezar salat":{ru:"Салат Цезарь", en:"Caesar Salad", d:{ru:"Курица, пармезан", en:"Chicken, parmesan"}},
+  "Kartoshka fri":{ru:"Картофель фри", en:"French Fries", d:{ru:"Средняя порция", en:"Medium portion"}},
+  "Kola":{ru:"Кола", en:"Cola", d:{ru:"0.5 л", en:"0.5 L"}},
+};
+function trItem(item){
+  if(currentLang === 'uz') return { name:item.n, desc:item.d };
+  const tr = ITEM_TR[item.n];
+  return tr ? { name:tr[currentLang], desc:tr.d[currentLang] } : { name:item.n, desc:item.d };
+}
+function trTag(tag){ return (TAG_TR[tag] && TAG_TR[tag][currentLang]) || tag; }
+function trTime(time){ return time.replace('daq', t('unit')); }
+
+function applyStaticI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{
+    el.innerHTML = t(el.dataset.i18nHtml);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.getElementById('themeToggle').title = t('themeTitle');
+  document.title = currentLang==='uz' ? "Dasturxon — Restoranlar va bron qilish" : (currentLang==='ru' ? "Dasturxon — Рестораны и бронирование" : "Dasturxon — Restaurants & bookings");
+}
+
+document.getElementById('langSwitch').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-lang]');
+  if(!btn) return;
+  currentLang = btn.dataset.lang;
+  document.querySelectorAll('#langSwitch button').forEach(b=>b.classList.toggle('active', b===btn));
+  applyStaticI18n();
+  renderAll(document.querySelector('.chip.active').dataset.tag);
+  if(typeof renderReorderText === 'function') renderReorderText();
+});
+
+const strip = document.getElementById('restoranlar');
+const menuList = document.getElementById('menuList');
+const menuTitle = document.getElementById('menuTitle');
+const menuRating = document.getElementById('menuRating');
+const menuSub = document.getElementById('menuSub');
+const ticketBody = document.getElementById('ticketBody');
+const ticketTotals = document.getElementById('ticketTotals');
+const ticketRestName = document.getElementById('ticketRestName');
+const orderBtn = document.getElementById('orderBtn');
+
+function fmt(n){ return n.toLocaleString('uz-UZ') + " " + t('currency'); }
+
+function matchesSearch(r){
+  if(!searchQuery) return true;
+  const q = searchQuery.toLowerCase();
+  return r.name.toLowerCase().includes(q) || r.items.some(i=>i.n.toLowerCase().includes(q));
+}
+
+function renderStrip(filter){
+  strip.innerHTML = '';
+  let list = restaurants.filter(r => filter==='Barchasi' || (filter==='Sevimli' ? favorites.has(r.id) : r.tag===filter));
+  list = list.filter(matchesSearch);
+  if(list.length === 0){
+    strip.innerHTML = `<div class="t-empty" style="padding:20px 0;">${t('noResults')}</div>`;
+    return;
+  }
+  list.forEach(r=>{
+    const card = document.createElement('div');
+    card.className = 'r-card' + (r.id===activeRestaurant.id ? ' active' : '');
+    const isFav = favorites.has(r.id);
+    card.innerHTML = `
+      <div class="r-thumb" style="background:${r.bg}">${r.emoji}${photoImgHtml(r)}${r.open?`<span class="open-badge">${t('badgeOpen')}</span>`:`<span class="open-badge" style="background:#4A392F;color:#D8CFC2;">${t('badgeClosed')}</span>`}</div>
+      <button class="fav-btn ${isFav?'active':''}">${isFav?'❤':'♡'}</button>
+      <span class="r-tag">${trTag(r.tag)}</span>
+      <h3>${r.name}</h3>
+      <div class="r-meta"><span>${r.rating}</span><span>${trTime(r.time)}</span></div>
+    `;
+    card.querySelector('.fav-btn').onclick = (e) => {
+      e.stopPropagation();
+      if(favorites.has(r.id)) favorites.delete(r.id); else favorites.add(r.id);
+      renderStrip(document.querySelector('.chip.active').dataset.tag);
+    };
+    card.onclick = () => { activeRestaurant = r; renderAll(document.querySelector('.chip.active').dataset.tag); };
+    strip.appendChild(card);
+  });
+}
+
+function renderMenu(){
+  menuTitle.textContent = activeRestaurant.name;
+  menuRating.textContent = activeRestaurant.rating;
+  menuSub.textContent = `${trTag(activeRestaurant.tag)} · ${t('delivery')} ${trTime(activeRestaurant.time)} · ${activeRestaurant.open ? t('openNow') : t('closedNow')}`;
+  menuList.innerHTML = '';
+  activeRestaurant.items.forEach(item=>{
+    const row = document.createElement('div');
+    row.className = 'menu-item';
+    const finalPrice = item.disc ? Math.round(item.p * (1 - item.disc/100)) : item.p;
+    const tr = trItem(item);
+    row.innerHTML = `
+      <div class="mi-emoji" style="background:${item.bg}">${item.e}${photoImgHtml(item)}</div>
+      <div class="mi-info">
+        <h4>${tr.name}</h4>
+        <p>${tr.desc}</p>
+        <div class="mi-action">
+          ${item.disc ? `<span class="discount-tag">-${item.disc}%</span>` : ''}
+          <div class="mi-price">${item.disc ? `<span class="old">${fmt(item.p)}</span>` : ''}${fmt(finalPrice)}</div>
+          <button class="add-btn" type="button">+</button>
+        </div>
+      </div>
+    `;
+    row.querySelector('.add-btn').onclick = () => addToCart({...item, p:finalPrice});
+    menuList.appendChild(row);
+  });
+
+  const reviewsList = document.getElementById('reviewsList');
+  reviewsList.innerHTML = activeRestaurant.reviews.map(rv => `
+    <div class="review">
+      <div class="review-avatar">${rv.name[0]}</div>
+      <div>
+        <span class="review-name">${rv.name}</span><span class="review-stars">${'★'.repeat(rv.stars)}${'☆'.repeat(5-rv.stars)}</span>
+        <p class="review-text">${rv.text}</p>
+      </div>
+    </div>`).join('');
+
+  renderSimilar();
+}
+
+function renderSimilar(){
+  const pool = [];
+  restaurants.forEach(r=>{
+    if(r.id === activeRestaurant.id) return;
+    r.items.forEach(it => pool.push({...it, restId:r.id, restName:r.name}));
+  });
+  const picks = pool.sort(()=>0.5 - Math.random()).slice(0,4);
+  document.getElementById('similarRow').innerHTML = picks.map(it => {
+    const tr = trItem(it);
+    return `
+    <div class="similar-card" data-rid="${it.restId}" data-name="${it.n}">
+      <div class="em">${it.e}${photoImgHtml(it)}</div>
+      <div class="nm">${tr.name}</div>
+      <div class="rest">${it.restName}</div>
+      <div class="similar-row-bottom">
+        <div class="pr">${fmt(it.disc ? Math.round(it.p*(1-it.disc/100)) : it.p)}</div>
+        <button class="similar-add" type="button">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.similar-card').forEach(card=>{
+    card.onclick = () => {
+      const r = restaurants.find(x=>x.id === Number(card.dataset.rid));
+      const it = r.items.find(x=>x.n === card.dataset.name);
+      activeRestaurant = r;
+      renderAll(document.querySelector('.chip.active').dataset.tag);
+      const finalPrice = it.disc ? Math.round(it.p*(1-it.disc/100)) : it.p;
+      addToCart({...it, p:finalPrice});
+    };
+  });
+}
+
+function addToCart(item){
+  const key = activeRestaurant.id + '-' + item.n;
+  if(!cart[key]) cart[key] = { item, qty:0, restId:activeRestaurant.id, restName:activeRestaurant.name };
+  cart[key].qty++;
+  renderTicket();
+}
+function changeQty(key, delta){
+  cart[key].qty += delta;
+  if(cart[key].qty <= 0) delete cart[key];
+  renderTicket();
+}
+
+function renderTicket(){
+  const keys = Object.keys(cart);
+  const extras = document.getElementById('ticketExtras');
+  if(keys.length === 0){
+    ticketBody.innerHTML = `<div class="t-empty">${t('ticketEmpty')}</div>`;
+    ticketTotals.innerHTML = '';
+    ticketRestName.textContent = t('ticketNoRest');
+    orderBtn.disabled = true;
+    if(extras) extras.style.display = 'none';
+    return;
+  }
+  const restNames = [...new Set(keys.map(k=>cart[k].restName))];
+  ticketRestName.textContent = restNames.join(' + ');
+  let subtotal = 0;
+  ticketBody.innerHTML = keys.map(k=>{
+    const c = cart[k];
+    const amt = c.item.p * c.qty;
+    subtotal += amt;
+    const trName = (ITEM_TR[c.item.n] && currentLang !== 'uz') ? ITEM_TR[c.item.n][currentLang] : c.item.n;
+    return `<div class="t-line">
+      <span class="t-qty">${c.qty}×</span>
+      <span class="t-name">${trName}</span>
+      <span class="t-leader"></span>
+      <span class="t-amt">${fmt(amt)}</span>
+      <button class="t-remove" type="button" data-key="${k}">✕</button>
+    </div>`;
+  }).join('');
+  ticketBody.querySelectorAll('.t-remove').forEach(btn=>{
+    btn.onclick = () => changeQty(btn.dataset.key, -1);
+  });
+  const service = Math.round(subtotal * 0.10);
+  const total = subtotal + service;
+  ticketTotals.innerHTML = `
+    <div class="t-totals">
+      <div class="row"><span>${t('totalItems')}</span><span>${fmt(subtotal)}</span></div>
+      <div class="row"><span>${t('totalService')}</span><span>${fmt(service)}</span></div>
+      <div class="row jami"><span>${t('totalJami')}</span><span>${fmt(total)}</span></div>
+    </div>`;
+  if(extras) extras.style.display = 'block';
+  orderBtn.disabled = false;
+}
+
+let selectedPayment = 'cash';
+document.getElementById('payOptions').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.pay-opt');
+  if(!btn) return;
+  selectedPayment = btn.dataset.pay;
+  document.querySelectorAll('.pay-opt').forEach(b=>b.classList.toggle('active', b===btn));
+});
+
+function showToast(msg){
+  let toast = document.getElementById('appToast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'appToast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(()=>{ toast.classList.remove('show'); }, 3200);
+}
+
+function saveMyOrder(order){
+  try{
+    const list = JSON.parse(localStorage.getItem('dasturxon-my-orders') || '[]');
+    list.unshift(order);
+    localStorage.setItem('dasturxon-my-orders', JSON.stringify(list.slice(0, 20)));
+  }catch(e){}
+}
+function getMyOrders(){
+  try{ return JSON.parse(localStorage.getItem('dasturxon-my-orders') || '[]'); }
+  catch(e){ return []; }
+}
+function renderMyOrders(){
+  const list = getMyOrders();
+  const panel = document.getElementById('myOrdersPanel');
+  if(list.length === 0){
+    panel.innerHTML = `<div class="mo-empty">${t('myOrdersEmpty')}</div>`;
+    return;
+  }
+  panel.innerHTML = list.map(o => `
+    <div class="mo-item">
+      <div class="mo-top"><span>${o.restaurant}</span><span>${fmt(o.total)}</span></div>
+      <div class="mo-meta">${o.items}</div>
+      <div class="mo-status">${o.status}</div>
+    </div>`).join('');
+}
+document.getElementById('myOrdersToggle').onclick = () => {
+  const panel = document.getElementById('myOrdersPanel');
+  const open = panel.style.display === 'block';
+  panel.style.display = open ? 'none' : 'block';
+  if(!open) renderMyOrders();
+};
+
+function renderAll(filter){
+  renderStrip(filter);
+  renderMenu();
+}
+
+/* ---------- REORDER (oldingi buyurtma) ---------- */
+const lastOrder = {
+  restId: 1,
+  items: [ {n:"Toshkent oshi", qty:1}, {n:"Ayron", qty:2} ]
+};
+function renderReorderText(){
+  const r = restaurants.find(x=>x.id === lastOrder.restId);
+  const summary = lastOrder.items.map(li => `${li.qty}× ${trItem({n:li.n}).name}`).join(', ');
+  document.getElementById('reorderText').textContent = `${r.name} — ${summary}`;
+}
+(function initReorder(){
+  renderReorderText();
+  document.getElementById('reorderBar').style.display = 'flex';
+  document.getElementById('reorderBtn').onclick = () => {
+    const r = restaurants.find(x=>x.id === lastOrder.restId);
+    activeRestaurant = r;
+    lastOrder.items.forEach(li=>{
+      const item = r.items.find(x=>x.n === li.n);
+      const finalPrice = item.disc ? Math.round(item.p*(1-item.disc/100)) : item.p;
+      const key = r.id + '-' + item.n;
+      cart[key] = { item:{...item,p:finalPrice}, qty:li.qty, restId:r.id, restName:r.name };
+    });
+    renderAll('Barchasi');
+    renderTicket();
+    document.querySelector('.ticket-wrap').scrollIntoView({behavior:'smooth', block:'start'});
+  };
+})();
+
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.onclick = () => {
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    const tag = chip.dataset.tag;
+    const visible = restaurants.filter(r => tag==='Barchasi' || (tag==='Sevimli' ? favorites.has(r.id) : r.tag===tag));
+    if(visible.length && !visible.find(r=>r.id===activeRestaurant.id)){
+      activeRestaurant = visible[0];
+    }
+    renderAll(tag);
+  };
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  searchQuery = e.target.value;
+  renderStrip(document.querySelector('.chip.active').dataset.tag);
+});
+
+function getStatusSteps(){
+  return [
+    {label:t('statusAccepted'), t:"0:00"},
+    {label:t('statusPreparing'), t:"0:04"},
+    {label:t('statusOnWay'), t:"0:12"},
+    {label:t('statusDelivered'), t:"0:24"},
+  ];
+}
+
+orderBtn.onclick = () => {
+  const nameInput = document.getElementById('orderCustomerName');
+  const phoneInput = document.getElementById('orderCustomerPhone');
+  const tableInput = document.getElementById('orderTable');
+  const addressInput = document.getElementById('deliveryAddress');
+
+  if(!nameInput.value.trim() || !phoneInput.value.trim() || !tableInput.value){
+    showToast("⚠️ Ism, telefon va stol raqamini kiriting");
+    [nameInput, phoneInput, tableInput].find(x => !x.value.trim())?.focus();
+    return;
+  }
+
+  orderBtn.disabled = true;
+  orderBtn.textContent = currentLang==='uz' ? "Buyurtma yuborilmoqda…" : "Sending…";
+
+  const keys = Object.keys(cart);
+  let subtotal = 0;
+  const items = keys.map(k => {
+    const c = cart[k];
+    const amount = c.item.p * c.qty;
+    subtotal += amount;
+    return {
+      name: c.item.n,
+      qty: c.qty,
+      price: c.item.p,
+      amount
+    };
+  });
+  const service = Math.round(subtotal * 0.10);
+  const total = subtotal + service;
+  const restaurantName = [...new Set(keys.map(k=>cart[k].restName))].join(' + ');
+  const orderId = Date.now();
+
+  const order = {
+    id: orderId,
+    restaurant: restaurantName,
+    customer: nameInput.value.trim(),
+    phone: phoneInput.value.trim(),
+    table: tableInput.value,
+    items,
+    itemsText: items.map(i => `${i.qty}× ${i.name}`).join(', '),
+    subtotal,
+    service,
+    total,
+    payment: selectedPayment,
+    note: (document.getElementById('courierNote') || {}).value || '',
+    address: addressInput.value.trim(),
+    status: 'yangi',
+    createdAt: new Date().toISOString(),
+    seen: false
+  };
+
+  try{
+    const list = JSON.parse(localStorage.getItem('dasturxon-orders') || '[]');
+    list.unshift(order);
+    localStorage.setItem('dasturxon-orders', JSON.stringify(list));
+    saveMyOrder({
+      id: orderId,
+      restaurant: restaurantName,
+      items: order.itemsText,
+      total,
+      status: 'Qabul qilindi',
+      table: order.table
+    });
+  }catch(err){
+    console.error(err);
+  }
+
+  showToast("✅ Buyurtmangiz admin paneliga yuborildi");
+  ticketBody.style.display = 'none';
+  ticketTotals.style.display = 'none';
+  const extras = document.getElementById('ticketExtras');
+  if(extras) extras.style.display = 'none';
+  const tracker = document.getElementById('statusTracker');
+  tracker.style.display = 'block';
+  tracker.innerHTML = `<div class="status-tracker">
+    <div class="status-step done"><div class="status-dot">✓</div><div class="status-label">Buyurtma yuborildi</div><div class="status-time">hozir</div></div>
+    <div class="status-step"><div class="status-dot">2</div><div class="status-label">Oshpaz tayyorlamoqda</div></div>
+    <div class="status-step"><div class="status-dot">3</div><div class="status-label">Ofitsiant olib keladi</div></div>
+  </div>`;
+
+  setTimeout(()=>{
+    cart = {};
+    tracker.style.display = 'none';
+    ticketBody.style.display = '';
+    ticketTotals.style.display = '';
+    if(extras) extras.style.display = 'block';
+    orderBtn.textContent = t('orderBtn');
+    orderBtn.disabled = false;
+    renderTicket();
+    renderMyOrders();
+  }, 2200);
+};
+
+function getDasturxonTables(){
+  const fallback=Array.from({length:12},(_,i)=>`Stol ${i+1}`);
+  try{
+    const v=JSON.parse(localStorage.getItem('dasturxon-tables')||'null');
+    if(Array.isArray(v) && v.length) return v.map(String).filter(Boolean);
+  }catch{}
+  return fallback;
+}
+function updateOrderTables(){
+  const select=document.getElementById('orderTable');
+  if(!select) return;
+  const current=select.value;
+  const tables=getDasturxonTables();
+  select.innerHTML='<option value="">Stol raqami</option>'+tables.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('');
+  if(tables.includes(current)) select.value=current;
+}
+function updateBookTables(){
+  const date=document.getElementById('bookDate').value;
+  const time=document.getElementById('bookTime').value;
+  const select=document.getElementById('bookTable');
+  const info=document.getElementById('tableAvailability');
+  if(!select) return;
+  const tables=getDasturxonTables();
+  let bookings=[];
+  try{ bookings=JSON.parse(localStorage.getItem('dasturxon-bookings')||'[]'); }catch{}
+  const confirmed=new Set(bookings
+    .filter(b=>b.restaurant===activeRestaurant.name && b.status==='tasdiqlandi' && b.tableReserved!==false && b.date===date && b.time===time)
+    .map(b=>b.table));
+  const current=select.value;
+  select.innerHTML='<option value="">Stolni tanlang</option>'+tables.map(table=>{
+    const busy=confirmed.has(table);
+    return `<option value="${table.replace(/"/g,'&quot;')}" ${busy?'disabled':''}>${table} — ${busy?"🔒 Band":"✓ Bo'sh"}</option>`;
+  }).join('');
+  if(current && tables.includes(current) && !confirmed.has(current)) select.value=current;
+  const free=Math.max(tables.length-confirmed.size,0);
+  info.textContent=`${confirmed.size} ta stol band, ${free} ta stol bo'sh. Faqat admin tasdiqlagan stollar band hisoblanadi.`;
+  updateOrderTables();
+}
+document.getElementById('bookDate').addEventListener('change', updateBookTables);
+document.getElementById('bookTime').addEventListener('change', updateBookTables);
+window.addEventListener('storage', e=>{
+  if(e.key==='dasturxon-bookings' || e.key==='dasturxon-tables') { updateBookTables(); updateOrderTables(); }
+});
+setInterval(updateBookTables, 1000);
+setTimeout(updateBookTables, 200);
+
+document.getElementById('bookForm').addEventListener('submit', function(e){
+  e.preventDefault();
+
+  const booking = {
+    id: Date.now(),
+    restaurant: activeRestaurant.name,
+    date: document.getElementById('bookDate').value,
+    time: document.getElementById('bookTime').value,
+    guests: Number(document.getElementById('bookGuests').value),
+    phone: document.getElementById('bookPhone').value.trim(),
+    name: document.getElementById('bookName').value.trim(),
+    table: document.getElementById('bookTable').value,
+    status: 'kutilmoqda',
+    createdAt: new Date().toISOString(),
+    seen: false
+  };
+
+  try{
+    const list = JSON.parse(localStorage.getItem('dasturxon-bookings') || '[]');
+    const conflict = list.some(b =>
+      b.restaurant === booking.restaurant &&
+      b.table === booking.table &&
+      b.date === booking.date &&
+      b.time === booking.time &&
+      b.status !== 'bekor qilindi'
+    );
+    if(conflict){
+      showToast("⚠️ Bu stol shu sana va vaqtda band");
+      return;
+    }
+    list.unshift(booking);
+    localStorage.setItem('dasturxon-bookings', JSON.stringify(list));
+    localStorage.setItem('dasturxon-last-booking', JSON.stringify(booking));
+  }catch(err){
+    console.error(err);
+  }
+
+  document.getElementById('bConfirm').style.display = 'block';
+  document.getElementById('bConfirm').textContent = `✓ ${booking.table} siz uchun bron so'roviga yuborildi. Admin tasdiqlaydi.`;
+  this.reset();
+});
+
+document.getElementById('themeToggle').onclick = () => {
+  const body = document.body;
+  const isDark = body.getAttribute('data-theme') === 'dark';
+  body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeToggle').textContent = isDark ? '🌙' : '☀️';
+};
+
+function syncRestaurantOpenState(){
+  try{
+    const settings = JSON.parse(localStorage.getItem('dasturxon-settings') || '{}');
+    if(typeof settings.isOpen === 'boolean'){
+      restaurants.forEach(r => { r.open = settings.isOpen; });
+    }
+  }catch(e){}
+}
+syncRestaurantOpenState();
+
+function showSkeleton(){
+  strip.innerHTML = Array(4).fill(`
+    <div class="r-card" style="pointer-events:none;">
+      <div class="skel" style="height:88px;margin-bottom:12px;"></div>
+      <div class="skel" style="height:12px;width:60%;margin-bottom:8px;"></div>
+      <div class="skel" style="height:16px;width:85%;margin-bottom:8px;"></div>
+      <div class="skel" style="height:11px;width:70%;"></div>
+    </div>`).join('');
+  menuList.innerHTML = Array(4).fill(`
+    <div class="menu-item">
+      <div class="skel" style="width:52px;height:52px;flex:none;"></div>
+      <div style="flex:1;"><div class="skel" style="height:14px;width:50%;margin-bottom:8px;"></div><div class="skel" style="height:11px;width:70%;"></div></div>
+    </div>`).join('');
+}
+
+applyStaticI18n();
+showSkeleton();
+setTimeout(()=>{ renderAll('Barchasi'); }, 550);
+loadFoodPhotos();
+
+// Live-sync with the admin panel: check every few seconds for menu changes
+// (deletions, price edits, new items) and refresh the visible menu automatically.
+setInterval(() => {
+  const beforeOpen = restaurants.map(r => r.open).join(',');
+  syncRestaurantOpenState();
+  const changed = applyMenuOverrides();
+  const afterOpen = restaurants.map(r => r.open).join(',');
+  if(changed || beforeOpen !== afterOpen){
+    renderAll(document.querySelector('.chip.active').dataset.tag);
+  }
+}, 1000);
+
+window.addEventListener('storage', (e) => {
+  if(['dasturxon-orders','dasturxon-bookings','dasturxon-menu','dasturxon-settings'].includes(e.key)){
+    syncRestaurantOpenState();
+    applyMenuOverrides();
+    renderAll(document.querySelector('.chip.active').dataset.tag);
+  }
+});
+</script>
+
+</body>
+</html>

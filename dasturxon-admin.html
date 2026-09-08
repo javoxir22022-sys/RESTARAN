@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dasturxon — Admin panel</title>
+<style>
+  :root{
+    --ink:        #2A241E;
+    --ink-soft:   #55493C;
+    --muted:      #8C7F6C;
+   
+    --teal:       #1F6F78;
+    --teal-dark:  #144D54;
+    --teal-tint:  #E6F0EF;
+   
+    --paprika:    #C1531B;
+    --paprika-dark:#9A3F13;
+    --paprika-tint:#FBEBDF;
+   
+    --olive:      #5F7D3A;
+    --olive-tint: #EDF2E3;
+    --rose:       #AD3B34;
+    --rose-tint:  #F7E9E7;
+   
+    --cream:      #F6F1E6;
+    --card:       #FFFDF8;
+    --border:     #E4D9C4;
+    --border-soft:#EFE7D6;
+   
+    --radius-s: 6px;
+    --radius-m: 10px;
+    --radius-l: 16px;
+   
+    --shadow-card: 0 1px 2px rgba(42,36,30,.05), 0 8px 24px -16px rgba(42,36,30,.25);
+   
+    font-size: 16px;
+  }
+   
+  *{ box-sizing: border-box; }
+   
+  html,body{
+    margin:0;
+    padding:0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+   
+  h1,h2{
+    font-family:'Fraunces', Georgia, serif;
+    color: var(--ink);
+    margin:0;
+  }
+   
+  ::selection{ background: var(--paprika); color:#fff; }
+   
+  :focus-visible{
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+   
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+   
+  button{ font-family: inherit; cursor: pointer; }
+  input, select{ font-family: inherit; }
+   
+  /* =========================================================
+     LOGIN
+     ========================================================= */
+   
+     .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      background:
+        linear-gradient(135deg, rgba(17,17,17,.96), rgba(45,25,8,.96)),
+        url("https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1600&q=80")
+        center/cover;
+    }
+    
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 28px;
+      background: rgba(255,255,255,.97);
+      box-shadow: 0 30px 80px rgba(0,0,0,.35);
+      animation: loginShow .6s ease;
+    }
+    
+    @keyframes loginShow {
+      from {
+        opacity: 0;
+        transform: translateY(25px) scale(.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    .wordmark {
+      display: block;
+      text-align: center;
+      font-family: "Playfair Display", serif;
+      font-size: 42px;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -1.5px;
+    }
+    
+    .wordmark span {
+      color: var(--primary);
+    }
+    
+    .login-sub {
+      text-align: center;
+      color: var(--muted);
+      margin: 8px 0 30px;
+      font-size: 14px;
+    }
+    
+    .field {
+      margin-bottom: 20px;
+    }
+    
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    
+    .field input {
+      width: 100%;
+      height: 52px;
+      padding: 0 16px;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      outline: none;
+      background: #fafafa;
+      font-size: 15px;
+      transition: .25s;
+    }
+    
+    .field input:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(217,119,6,.1);
+    }
+    
+    .password-wrap {
+      position: relative;
+    }
+    
+    .password-wrap input {
+      padding-right: 52px;
+    }
+    
+    .toggle-eye {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #777;
+    }
+    
+    .toggle-eye svg {
+      width: 21px;
+      height: 21px;
+    }
+    
+    .btn-group {
+      display: grid;
+      gap: 11px;
+      margin-top: 25px;
+    }
+    
+    .login-btn {
+      border: none;
+      height: 53px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      transition: .25s;
+    }
+    
+    .btn-admin {
+      color: white;
+      background: linear-gradient(135deg, #d97706, #b45309);
+      box-shadow: 0 8px 20px rgba(217,119,6,.25);
+    }
+    
+    .btn-mijoz {
+      background: #111;
+      color: white;
+    }
+    
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(0,0,0,.15);
+    }
+    
+    .login-error {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--red-light);
+      color: var(--red);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .login-hint {
+      margin-top: 22px;
+      padding: 14px;
+      border-radius: 13px;
+      background: #f7f7f7;
+      color: #777;
+      font-size: 12px;
+      line-height: 1.7;
+      text-align: center;
+    }
+    
+    .login-hint code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 5px;
+      color: #222;
+    }
+    
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
+    }
+   
+  /* =========================================================
+     DASHBOARD SHELL
+     ========================================================= */
+   
+  .dash{
+    display:none;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+   
+  .dash-top{
+    display:flex;
+    align-items:flex-end;
+    justify-content: space-between;
+    padding-bottom: 22px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+  }
+   
+  .dash-eyebrow{
+    display:block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--paprika-dark);
+    margin-bottom: 4px;
+  }
+   
+  .dash-top h1{
+    font-size: 30px;
+    font-weight: 600;
+  }
+   
+  .logout-btn{
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--ink-soft);
+    padding: 9px 16px;
+    border-radius: var(--radius-s);
+    font-size: 13.5px;
+    font-weight: 700;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .logout-btn:hover{
+    border-color: var(--rose);
+    color: var(--rose);
+    background: var(--rose-tint);
+  }
+   
+  .panel{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    padding: 22px 22px 24px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow-card);
+  }
+   
+  .panel h2{
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display:flex;
+    align-items:center;
+    gap: 8px;
+  }
+   
+  /* =========================================================
+     NOTIFICATION PANELS (bookings / food orders)
+     ========================================================= */
+   
+  .notif-panel{
+    border-color: var(--paprika);
+    background: var(--paprika-tint);
+  }
+  .notif-panel h2{ color: var(--paprika-dark); }
+   
+  .notif-count{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width: 21px;
+    height: 21px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--paprika);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+  }
+   
+  .notif-item{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid var(--border-soft);
+    border-left: 3px solid var(--paprika);
+    border-radius: var(--radius-m);
+    padding: 13px 15px;
+    margin-bottom: 10px;
+    transition: transform .18s ease, opacity .18s ease, max-height .25s ease, margin .25s ease, padding .25s ease;
+  }
+  .notif-item:last-child{ margin-bottom: 0; }
+   
+  .notif-item.leaving{
+    opacity: 0;
+    transform: translateX(14px);
+  }
+   
+  .notif-info b{ font-size: 14.5px; }
+  .notif-info p{
+    margin: 3px 0 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+   
+  .notif-actions{ display:flex; gap: 8px; flex-shrink: 0; }
+   
+  .notif-actions button{
+    border: none;
+    border-radius: var(--radius-s);
+    padding: 8px 13px;
+    font-size: 13px;
+    font-weight: 700;
+    transition: filter .15s ease, transform .12s ease;
+  }
+  .notif-actions button:active{ transform: scale(.96); }
+   
+  .accept-btn{ background: var(--olive); color: #fff; }
+  .accept-btn:hover{ filter: brightness(1.08); }
+  .reject-btn{ background: var(--rose-tint); color: var(--rose); }
+  .reject-btn:hover{ filter: brightness(.97); }
+   
+  .empty-note{
+    font-size: 13.5px;
+    color: var(--muted);
+    padding: 4px 2px;
+  }
+   
+  /* =========================================================
+     STATS
+     ========================================================= */
+   
+  .stats{
+    display:flex;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .stat{
+    flex: 1;
+    padding: 20px 16px;
+    text-align:center;
+    position: relative;
+  }
+  .stat + .stat::before{
+    content:"";
+    position:absolute;
+    left:0; top: 22%; bottom: 22%;
+    width: 1px;
+    background: var(--border);
+  }
+  .stat .num{
+    font-family:'Fraunces', Georgia, serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--teal-dark);
+  }
+  .stat .num.mono{ font-variant-numeric: tabular-nums; }
+  .stat .lbl{
+    margin-top: 4px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+   
+  /* =========================================================
+     OPEN / CLOSED TOGGLE
+     ========================================================= */
+   
+  .open-toggle-row{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+   
+  .status-word{
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--olive);
+  }
+  .status-word.closed{ color: var(--rose); }
+   
+  .switch{
+    position: relative;
+    display:inline-block;
+    width: 50px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+  .switch input{
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .switch-track{
+    position:absolute;
+    inset: 0;
+    background: var(--rose);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .2s ease;
+  }
+  .switch-track::before{
+    content:"";
+    position:absolute;
+    width: 22px; height: 22px;
+    left: 3px; top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  }
+  .switch input:checked + .switch-track{ background: var(--olive); }
+  .switch input:checked + .switch-track::before{ transform: translateX(22px); }
+  .switch input:focus-visible + .switch-track{ outline: 2px solid var(--teal); outline-offset: 2px; }
+   
+  /* =========================================================
+     WEEKLY CHART
+     ========================================================= */
+   
+  .chart{
+    display:flex;
+    align-items:flex-end;
+    gap: 10px;
+    height: 150px;
+    padding-top: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .bar-col{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height: 100%;
+    gap: 6px;
+  }
+  .bar{
+    width: 60%;
+    min-width: 14px;
+    background: var(--teal-tint);
+    border: 1px solid var(--teal);
+    border-radius: 5px 5px 0 0;
+    transition: height .5s cubic-bezier(.2,.8,.2,1);
+    position: relative;
+  }
+  .bar-col.today .bar{
+    background: var(--paprika);
+    border-color: var(--paprika-dark);
+  }
+  .bar-count{
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .bar-day{
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: var(--muted);
+    padding-bottom: 4px;
+  }
+  .bar-col.today .bar-day{ color: var(--paprika-dark); font-weight: 800; }
+   
+  /* =========================================================
+     ORDERS TABLE
+     ========================================================= */
+   
+  .table-wrap{ overflow-x: auto; }
+   
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead th{
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    padding: 0 10px 10px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td{
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td{ border-bottom: none; }
+  tbody tr{ transition: background .15s ease; }
+  tbody tr:hover{ background: var(--teal-tint); }
+   
+  .badge{
+    display:inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+  .badge-yangi{ background: var(--paprika-tint); color: var(--paprika-dark); }
+  .badge-tayyor{ background: var(--teal-tint); color: var(--teal-dark); }
+  .badge-yetkazildi{ background: var(--olive-tint); color: var(--olive); }
+   
+  /* =========================================================
+     MENU MANAGEMENT
+     ========================================================= */
+   
+  .menu-group{ margin-bottom: 16px; }
+  .menu-group:last-child{ margin-bottom: 0; }
+   
+  .menu-group-title{
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--teal-dark);
+    text-transform: none;
+    margin-bottom: 8px;
+  }
+   
+  .menu-row{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .menu-row:last-child{ border-bottom: none; }
+   
+  .menu-name-price{
+    display:flex;
+    align-items:baseline;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+  .menu-row .m-name{
+    font-size: 14.5px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .menu-row .m-price{
+    font-size: 13px;
+    color: var(--muted);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+   
+  .menu-row-actions{ display:flex; gap: 6px; flex-shrink: 0; }
+  .icon-btn{
+    border: 1px solid var(--border);
+    background: #fff;
+    width: 30px; height: 30px;
+    border-radius: var(--radius-s);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 14px;
+    color: var(--ink-soft);
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .icon-btn:hover{ border-color: var(--teal); color: var(--teal-dark); }
+  .icon-btn.del:hover{ border-color: var(--rose); color: var(--rose); background: var(--rose-tint); }
+   
+  .add-item-row{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+  }
+  .new-item-select, .add-item-row input{
+    padding: 9px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+    font-size: 13.5px;
+    background: #fff;
+    color: var(--ink);
+  }
+  .new-item-select{ flex: 1 1 170px; }
+  #newItemName{ flex: 2 1 180px; }
+  #newItemPrice{ flex: 1 1 100px; }
+  .new-item-select:focus, .add-item-row input:focus{
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(31,111,120,.14);
+    outline: none;
+  }
+   
+  .add-item-btn{
+    flex: 1 1 130px;
+    border: none;
+    background: var(--paprika);
+    color: #fff;
+    border-radius: var(--radius-s);
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 9px 14px;
+    transition: background .15s ease, transform .12s ease;
+  }
+  .add-item-btn:hover{ background: var(--paprika-dark); }
+  .add-item-btn:active{ transform: scale(.97); }
+   
+  .save-note{
+    display:none;
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--olive);
+  }
+  .save-note.show{
+    display:block;
+    animation: fadeOut 1.8s ease forwards;
+  }
+  @keyframes fadeOut{
+    0%{ opacity: 1; }
+    70%{ opacity: 1; }
+    100%{ opacity: 0; }
+  }
+   
+  
+   
+  @media (max-width: 560px){
+    .dash-top{ flex-direction: column; align-items: flex-start; gap: 12px; }
+    .logout-btn{ align-self: flex-end; }
+    .stats{ flex-direction: column; }
+    .stat + .stat::before{ display:none; }
+    .stat + .stat{ border-top: 1px solid var(--border); }
+    .notif-item{ flex-direction: column; align-items: flex-start; }
+    .notif-actions{ align-self: flex-end; }
+  }
+   
+
+/* ===== DASTURXON LIVE ORDERS / RESERVATIONS ===== */
+.admin-table-wrap{overflow-x:auto}
+.admin-table-wrap table{min-width:760px}
+small{color:var(--muted)}
+.state-badge{
+  display:inline-block;padding:4px 9px;border-radius:999px;background:var(--paprika-tint);
+  color:var(--paprika-dark);font-size:11px;font-weight:800
+}
+.state-badge.ok{background:var(--olive-tint);color:var(--olive)}
+.state-badge.bad{background:var(--rose-tint);color:var(--rose)}
+.order-status{
+  border:1px solid var(--border);border-radius:7px;background:var(--card);
+  color:var(--ink);padding:6px 8px;font-weight:700;font-size:12px
+}
+.receipt-btn,.print-day-btn{
+  border:none;border-radius:7px;background:var(--teal);color:#fff;padding:7px 10px;
+  font-weight:800;font-size:12px;cursor:pointer
+}
+.receipt-btn:hover,.print-day-btn:hover{background:var(--teal-dark)}
+.table-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px
+}
+.table-card{
+  border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--card);
+  min-height:120px;transition:.15s ease
+}
+.table-card:hover{transform:translateY(-2px)}
+.table-card.free{border-color:var(--border)}
+.table-card.reserved{border-color:var(--paprika);background:var(--paprika-tint)}
+.table-card.ordered{border-color:var(--teal);background:var(--teal-tint)}
+.table-no{font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:700}
+.table-state{font-size:12px;font-weight:800;margin-top:5px}
+.table-client{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45}
+.account-box{display:grid;gap:0}
+.account-box>div{
+  display:flex;justify-content:space-between;padding:10px 2px;border-bottom:1px dashed var(--border)
+}
+.account-box .account-total{font-size:18px;font-weight:800;border-top:2px solid var(--border);margin-top:5px}
+.print-day-btn{margin-top:15px;width:100%;padding:11px}
+@media(max-width:700px){
+  .table-grid{grid-template-columns:repeat(2,1fr)}
+  .stats{flex-direction:column}
+  .stat + .stat::before{left:22%;right:22%;top:0;bottom:auto;width:auto;height:1px}
+}
+@media(max-width:430px){
+  .table-grid{grid-template-columns:1fr 1fr}
+  .table-card{padding:11px;min-height:105px}
+}
+
+/* Bronni tasdiqlashda stolni egallashni alohida boshqarish */
+.booking-actions{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+.table-lock-option{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted,#6b6258);cursor:pointer;}
+.table-lock-option input{width:17px;height:17px;accent-color:#6f8f72;cursor:pointer;}
+.booking-action-buttons{display:flex;gap:8px;}
+@media(max-width:700px){.booking-actions{align-items:stretch}.booking-action-buttons{width:100%}.booking-action-buttons button{flex:1}}
+
+/* Stol boshqaruvi */
+.table-action{width:100%;border:0;border-radius:9px;padding:8px 10px;margin-top:9px;font-weight:700;cursor:pointer;transition:.2s}.table-action.reserve{background:#1f7a4d;color:#fff}.table-action.release{background:#a33b32;color:#fff}.table-action:hover{transform:translateY(-1px);filter:brightness(1.05)}.table-card.free{border:1px solid rgba(31,122,77,.25)}.table-card.reserved{border:1px solid rgba(163,59,50,.3)}
+
+/* Stol buyurtmasi qabul qilinishini kutish holati */
+.table-wait{
+  margin-top:8px;
+  padding:8px 10px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:700;
+  background:#fff7e6;
+  color:#8a5a00;
+  border:1px solid #f1d49a;
+}
+.table-action.release{
+  width:100%;
+  margin-top:8px;
+}
+
+/* Bron qilingan stollar ro'yxati */
+.reserved-tables-info{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding:10px 12px;border-radius:12px;background:#f7f3ea;border:1px solid rgba(31,122,77,.15)}
+.reserved-chip{display:inline-flex;align-items:center;gap:5px;padding:7px 10px;border-radius:9px;background:#fff;border:1px solid #ddd5c7;font-size:12px}
+.reserved-chip small{color:#777}
+.reserved-chip em{font-style:normal;font-weight:700}
+.reserved-empty{font-size:13px;color:#777}
+.table-card.pending{border:1px solid #d9b15b;background:#fffaf0}
+
+
+/* ===== Stolni to'liq boshqarish ===== */
+.table-manage-add{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 14px;padding:12px;border:1px dashed var(--border);border-radius:12px;background:rgba(247,243,234,.7)}
+.table-manage-add input{flex:1 1 220px;padding:10px 12px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--ink);font-size:13.5px;outline:none}
+.table-manage-add input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(31,111,120,.12)}
+.table-manage-add .add-item-btn{flex:0 0 auto;margin:0}
+.table-manage-list{display:grid;gap:7px;margin-bottom:16px}
+.manage-table-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:var(--card)}
+.manage-table-row>b{min-width:100px}
+.manage-table-state{flex:1;color:var(--muted);font-size:12px}
+.manage-table-row .icon-btn{width:auto;height:32px;padding:0 10px;cursor:pointer}
+.manage-table-row .icon-btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+@media(max-width:560px){.manage-table-row{flex-wrap:wrap}.manage-table-state{flex-basis:100%;order:3}.manage-table-row .icon-btn{margin-left:auto}}
+
+.release-booking-btn{width:100%;margin-top:0;padding:9px 12px;border:0;border-radius:9px;font-weight:700;cursor:pointer;background:#a33b32;color:#fff}.release-booking-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+
+
+/* Barcha band stollarni bir bosishda bo'shatish */
+.quick-table-release-panel{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:14px 18px;
+}
+.release-all-btn{
+  border:0;
+  border-radius:10px;
+  padding:11px 16px;
+  background:#a33b32;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+  transition:.2s;
+}
+.release-all-btn:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.05);
+}
+.quick-table-release-note{
+  font-size:13px;
+  color:#777;
+}
+
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginScreen">
+  <div class="login-card">
+    <span class="wordmark">Dastur<span>xon</span></span>
+    <p class="login-sub">Restoran egalari va mijozlar uchun kirish</p>
+    <form id="loginForm">
+      <div class="field"><label>Login</label><input type="text" id="username" autocomplete="username" required></div>
+      <div class="field">
+        <label>Parol</label>
+        <div class="password-wrap">
+          <input type="password" id="password" autocomplete="current-password" required>
+          <span class="toggle-eye" id="toggleEye">
+            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="login-btn btn-admin" id="adminBtn">Admin sifatida kirish</button>
+        <button type="button" class="login-btn btn-mijoz" id="mijozBtn">Mijoz sifatida kirish</button>
+      </div>
+      <div class="login-error" id="loginError">Login yoki parol noto'g'ri.</div>
+    </form>
+    <p class="login-hint">Admin uchun: <code>admin</code> / <code>admin123</code><br>Mijoz uchun: <code>mijoz</code> / <code>mijoz123</code></p>
+    <a href="dasturxon-demo.html" class="back-link">← Mijozlar sahifasiga qaytish</a>
+  </div>
+</div>
+
+<div class="dash" id="dashScreen">
+  <div class="dash-top">
+    <div><span class="dash-eyebrow">Dasturxon Admin</span><h1 id="restName">Osh Markazi</h1><p class="dash-sub">Boshqaruv paneli</p></div>
+    <button class="logout-btn" id="logoutBtn">Chiqish</button>
+  </div>
+
+  <div class="panel quick-table-release-panel">
+    <button type="button" class="release-all-btn" id="releaseAllTablesBtn">🔓 Band qilingan stollarni bo'shatish</button>
+    <span class="quick-table-release-note">Barcha admin tasdiqlagan band stollarni bir bosishda bo'shatadi.</span>
+  </div>
+
+  <div class="panel notif-panel" id="bookingsPanel" style="display:none;">
+    <h2>🪑 Yangi stol bronlari <span class="notif-count" id="notifCount"></span></h2>
+    <div id="bookingsList"></div>
+  </div>
+
+  <div class="panel notif-panel" id="foodOrdersPanel" style="display:none;">
+    <h2>🍽 Yangi ovqat buyurtmalari <span class="notif-count" id="foodNotifCount"></span></h2>
+    <div id="foodOrdersList"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="statOrderCount">0</div><div class="lbl">Bugungi buyurtma</div></div>
+    <div class="stat"><div class="num mono" id="statRevenue">0 so'm</div><div class="lbl">Bugungi tushum</div></div>
+    <div class="stat"><div class="num" id="statBookingCount">0</div><div class="lbl">Faol bronlar</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="open-toggle-row">
+      <div><h2 style="margin-bottom:2px;">Restoran holati</h2><span class="status-word" id="statusWord">Hozir ochiq</span></div>
+      <label class="switch"><input type="checkbox" id="openToggle" checked><span class="switch-track"></span></label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>🪑 Stol holati va boshqaruvi</h2>
+    <div class="table-manage-add">
+      <input id="newTableName" type="text" placeholder="Masalan: Stol 13 yoki 13">
+      <button id="addTableBtn" class="add-item-btn">+ Stol qo'shish</button>
+    </div>
+    <div class="table-manage-list" id="tableManage"></div>
+    <div class="reserved-tables-info" id="reservedTablesInfo"></div>
+    <div class="table-grid" id="tableGrid"></div>
+  </div>
+
+  <div class="panel">
+    <h2>📋 Bronlar tarixi</h2>
+    <div class="admin-table-wrap"><table><thead><tr><th>Mijoz</th><th>Stol</th><th>Sana / vaqt</th><th>Kishi</th><th>Telefon</th><th>Holat</th></tr></thead><tbody id="bookingsBody"></tbody></table></div>
+  </div>
+
+  <div class="panel">
+    <h2>🧾 Buyurtmalar</h2>
+    <div class="admin-table-wrap"><table><thead><tr><th>Mijoz</th><th>Stol</th><th>Taomlar</th><th>Jami</th><th>To'lov</th><th>Holat</th><th>Chek</th></tr></thead><div class="divlar" id="ordersBody"></div></table></div>
+  </div>
+
+  <div class="panel">
+    <h2>💰 Kunlik hisob</h2>
+    <div class="account-box" id="accountBox"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Haftalik buyurtmalar</h2>
+    <div class="chart" id="weekChart"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Menyuni boshqarish</h2>
+    <div id="menuManage"></div>
+    <div class="add-item-row">
+      <select id="newItemRest" class="new-item-select">
+        <option value="Osh Markazi">Osh Markazi</option><option value="Lag'mon Ustaxonasi">Lag'mon Ustaxonasi</option>
+        <option value="Shashlik Olami">Shashlik Olami</option><option value="Bellissimo Pizza">Bellissimo Pizza</option>
+      </select>
+      <input type="text" id="newItemName" placeholder="Yangi taom nomi">
+      <input type="number" id="newItemPrice" placeholder="Narx">
+      <button class="add-item-btn" id="addItemBtn">+ Qo'shish</button>
+    </div>
+    <div class="save-note" id="saveNote">✓ O'zgarishlar saqlandi</div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const CREDENTIALS = {
+  admin: {user:"admin", pass:"admin123"},
+  mijoz: {user:"mijoz", pass:"mijoz123"}
+};
+const CUSTOMER_PAGE = "dasturxon-demo.html";
+const ORDERS_KEY = "dasturxon-orders";
+const BOOKINGS_KEY = "dasturxon-bookings";
+const MENU_KEY = "dasturxon-menu";
+const SETTINGS_KEY = "dasturxon-settings";
+const SESSION_KEY = "dasturxon_logged_in";
+const TABLES_KEY = "dasturxon-tables";
+const DEFAULT_TABLES = Array.from({length:12}, (_,i)=>`Stol ${i+1}`);
+const DAYS = ["Yak","Dush","Sesh","Chor","Pay","Jum","Shan"];
+
+const DEFAULT_MENU = [
+  ["Osh Markazi","Toshkent oshi",38000],["Osh Markazi","Qozon kabob",42000],["Osh Markazi","Norin",35000],["Osh Markazi","Achichuk salat",12000],["Osh Markazi","Ayron",8000],
+  ["Lag'mon Ustaxonasi","Qovurma lag'mon",32000],["Lag'mon Ustaxonasi","Tortma lag'mon",30000],["Lag'mon Ustaxonasi","Manti",28000],["Lag'mon Ustaxonasi","Chuchvara",26000],["Lag'mon Ustaxonasi","Ko'k choy",6000],
+  ["Shashlik Olami","Qiyma shashlik",24000],["Shashlik Olami","Jigar shashlik",22000],["Shashlik Olami","Tovuq shashlik",20000],["Shashlik Olami","Lavash",25000],["Shashlik Olami","Non",5000],
+  ["Bellissimo Pizza","Margarita pitsa",45000],["Bellissimo Pizza","Pepperoni pitsa",52000],["Bellissimo Pizza","Sezar salat",28000],["Bellissimo Pizza","Kartoshka fri",14000],["Bellissimo Pizza","Kola",8000]
+];
+
+const $ = id => document.getElementById(id);
+const money = n => `${Number(n||0).toLocaleString("ru-RU")} so'm`;
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const getOrders = () => { try{return JSON.parse(localStorage.getItem(ORDERS_KEY)||"[]")}catch{return[]} };
+const getBookings = () => { try{return JSON.parse(localStorage.getItem(BOOKINGS_KEY)||"[]")}catch{return[]} };
+const getTables = () => {
+  try {
+    const value = JSON.parse(localStorage.getItem(TABLES_KEY));
+    if(Array.isArray(value) && value.length) return value.map(String).filter(Boolean);
+  } catch {}
+  save(TABLES_KEY, DEFAULT_TABLES);
+  return [...DEFAULT_TABLES];
+};
+const save = (key,val) => localStorage.setItem(key, JSON.stringify(val));
+getTables();
+
+function ensureMenu(){
+  let menu;
+  try { menu = JSON.parse(localStorage.getItem(MENU_KEY)); } catch {}
+  if(!Array.isArray(menu) || menu.length===0){
+    menu = DEFAULT_MENU.map((x,i)=>({id:"m"+(i+1),rest:x[0],n:x[1],p:x[2]}));
+    save(MENU_KEY,menu);
+  }
+}
+ensureMenu();
+
+const loginScreen=$("loginScreen"), dashScreen=$("dashScreen");
+const username=$("username"), password=$("password"), loginError=$("loginError");
+const openToggle=$("openToggle"), statusWord=$("statusWord");
+const bookingsPanel=$("bookingsPanel"), bookingsList=$("bookingsList");
+const foodOrdersPanel=$("foodOrdersPanel"), foodOrdersList=$("foodOrdersList");
+const bookingsBody=$("bookingsBody"), ordersBody=$("ordersBody");
+const tableGrid=$("tableGrid"), accountBox=$("accountBox");
+const menuManage=$("menuManage"), weekChart=$("weekChart");
+const statOrderCount=$("statOrderCount"), statRevenue=$("statRevenue"), statBookingCount=$("statBookingCount");
+
+$("toggleEye").onclick=()=>{
+  password.type=password.type==="password"?"text":"password";
+};
+function err(msg){loginError.textContent=msg;loginError.classList.add("show")}
+function clearErr(){loginError.classList.remove("show")}
+function login(role){
+  clearErr();
+  if(username.value!==CREDENTIALS[role].user || password.value!==CREDENTIALS[role].pass){err("Login yoki parol noto'g'ri.");return}
+  if(role==="mijoz"){location.href=CUSTOMER_PAGE;return}
+  enter();
+}
+$("adminBtn").onclick=()=>login("admin");
+$("mijozBtn").onclick=()=>login("mijoz");
+$("loginForm").onsubmit=e=>{e.preventDefault();login("admin")};
+[username,password].forEach(x=>x.oninput=clearErr);
+
+function enter(){
+  loginScreen.style.display="none"; dashScreen.style.display="block";
+  sessionStorage.setItem(SESSION_KEY,"1");
+  renderAll();
+}
+$("logoutBtn").onclick=()=>{
+  sessionStorage.removeItem(SESSION_KEY); dashScreen.style.display="none"; loginScreen.style.display="flex";
+  username.value=password.value=""; clearErr();
+};
+
+function readSettings(){
+  try{return JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}")}catch{return{}}
+}
+function renderOpen(){
+  const s=readSettings();
+  const isOpen=typeof s.isOpen==="boolean"?s.isOpen:true;
+  openToggle.checked=isOpen;
+  statusWord.textContent=isOpen?"Hozir ochiq":"Hozir yopiq";
+  statusWord.classList.toggle("closed",!isOpen);
+}
+openToggle.onchange=()=>{
+  save(SETTINGS_KEY,{isOpen:openToggle.checked});
+  renderOpen();
+};
+
+// Admin barcha hozir band bo'lgan stollarni bir tugma bilan bo'shatishi mumkin.
+const releaseAllTablesBtn = document.getElementById("releaseAllTablesBtn");
+
+if (releaseAllTablesBtn) {
+  releaseAllTablesBtn.onclick = () => {
+    const list = getBookings();
+
+    const active = list.filter(b =>
+      b &&
+      b.table &&
+      b.status === "tasdiqlandi" &&
+      b.tableReserved !== false
+    );
+
+    if (active.length === 0) {
+      alert("Hozircha band qilingan stol yo'q.");
+      return;
+    }
+
+    const confirmed = confirm(
+      `Jami ${active.length} ta band stolni bo'shatishni xohlaysizmi?`
+    );
+
+    if (!confirmed) return;
+
+    const now = new Date().toISOString();
+
+    const updatedList = list.map(b => {
+      if (
+        b &&
+        b.table &&
+        b.status === "tasdiqlandi" &&
+        b.tableReserved !== false
+      ) {
+        return {
+          ...b,
+          status: "yakunlandi",
+          tableReserved: false,
+          releasedAt: now
+        };
+      }
+
+      return b;
+    });
+
+    save(BOOKINGS_KEY, updatedList);
+
+    // Sahifadagi barcha ma'lumotlarni yangilash
+    renderAll();
+
+    alert(`✓ ${active.length} ta stol muvaffaqiyatli bo'shatildi.`);
+  };
+}
+function isActiveBooking(b){
+  // Stol faqat admin tasdiqlaganidan keyin haqiqiy band hisoblanadi.
+  return b && b.status === "tasdiqlandi";
+}
+function renderBookingNotifications(){
+  const all=getBookings();
+  const pending=all.filter(b=>!b.status || b.status==="kutilmoqda");
+  const active=all.filter(b=>b.status==="tasdiqlandi" && b.table && b.tableReserved!==false);
+  const rows=[...pending,...active];
+  bookingsPanel.style.display=rows.length?"block":"none";
+  $("notifCount").textContent=pending.length||"";
+
+  bookingsList.innerHTML=rows.map(b=>{
+    const isPending=!b.status || b.status==="kutilmoqda";
+    return `
+    <div class="notif-item" data-id="${esc(b.id)}">
+      <div class="notif-info">
+        <b>${esc(b.name)} — ${esc(b.table||"Stol tanlanmagan")}</b>
+        <p>${esc(b.restaurant)} · ${esc(b.date)} · ${esc(b.time)} · ${esc(b.guests)} kishi · ${esc(b.phone)}</p>
+        ${isPending?"<small>⏳ Yangi bron so'rovi</small>":"<small>🔒 Stol hozir band</small>"}
+      </div>
+      <div class="notif-actions booking-actions">
+        ${isPending?`
+          <label class="table-lock-option">
+            <input type="checkbox" class="table-lock" data-id="${esc(b.id)}" checked>
+            <span class="table-lock-text">Stolni band qilish</span>
+          </label>
+          <div class="booking-action-buttons">
+            <button class="accept-btn" data-action="accept">✓ Tasdiqlash</button>
+            <button class="reject-btn" data-action="reject">Bekor</button>
+          </div>`:`
+          <button class="reject-btn release-booking-btn" data-action="release-table">🔓 Stolni bandlikdan chiqarish</button>`}
+      </div>
+    </div>`;
+  }).join("");
+
+  bookingsList.querySelectorAll(".table-lock").forEach(lock=>{
+    lock.onchange=()=>{
+      const text=lock.closest(".table-lock-option")?.querySelector(".table-lock-text");
+      if(text) text.textContent=lock.checked?"Stolni band qilish":"Stolni bandlikdan chiqarish";
+    };
+  });
+}
+bookingsList.onclick=e=>{
+  const btn=e.target.closest("[data-action]"); if(!btn)return;
+  const row=btn.closest(".notif-item"), id=row.dataset.id;
+  const list=getBookings(), b=list.find(x=>String(x.id)===id); if(!b)return;
+
+  if(btn.dataset.action==="accept"){
+    const lock=row.querySelector(".table-lock");
+    b.status="tasdiqlandi";
+    b.tableReserved=!!(lock && lock.checked);
+    b.acceptedAt=new Date().toISOString();
+    b.seen=true;
+  }else if(btn.dataset.action==="release-table"){
+    b.status="tasdiqlandi";
+    b.tableReserved=false;
+    b.releasedAt=new Date().toISOString();
+    b.seen=true;
+  }else{
+    b.status="bekor qilindi";
+    b.tableReserved=false;
+    b.seen=true;
+  }
+  save(BOOKINGS_KEY,list); renderAll();
+};
+
+function renderOrderNotifications(){
+  const all=getOrders(), pending=all.filter(o=>!o.status || o.status==="yangi");
+  foodOrdersPanel.style.display=pending.length?"block":"none";
+  $("foodNotifCount").textContent=pending.length||"";
+  foodOrdersList.innerHTML=pending.map(o=>`
+    <div class="notif-item" data-id="${esc(o.id)}">
+      <div class="notif-info">
+        <b>${esc(o.customer||"Noma'lum")} · ${esc(o.table||"Stol yo'q")}</b>
+        <p>${esc(o.restaurant||"")} · ${esc(o.itemsText||formatItems(o))} · <strong>${money(o.total)}</strong></p>
+      </div>
+      <div class="notif-actions">
+        <button class="accept-btn" data-action="accept">✓ Qabul qilish</button>
+        <button class="reject-btn" data-action="reject">Bekor</button>
+      </div>
+    </div>`).join("");
+}
+foodOrdersList.onclick=e=>{
+  const btn=e.target.closest("[data-action]"); if(!btn)return;
+  const id=btn.closest(".notif-item").dataset.id;
+  const list=getOrders(), o=list.find(x=>String(x.id)===id); if(!o)return;
+  o.status=btn.dataset.action==="accept"?"tayyor":"bekor";
+  o.acceptedAt=new Date().toISOString(); o.seen=true;
+  save(ORDERS_KEY,list); renderAll();
+};
+
+function formatItems(o){
+  if(Array.isArray(o.items)) return o.items.map(i=>`${i.qty}× ${i.name}`).join(", ");
+  return o.items||"";
+}
+function renderStats(){
+  const orders=getOrders().filter(o=>{
+    if(!o.createdAt)return true;
+    return new Date(o.createdAt).toDateString()===new Date().toDateString();
+  }).filter(o=>o.status!=="bekor");
+  const revenue=orders.reduce((s,o)=>s+Number(o.total||0),0);
+  const bookings=getBookings().filter(isActiveBooking);
+  statOrderCount.textContent=orders.length;
+  statRevenue.textContent=money(revenue);
+  statBookingCount.textContent=bookings.length;
+}
+
+function renderBookingsTable(){
+  const list=getBookings();
+  bookingsBody.innerHTML=list.length?list.map(b=>`
+    <tr>
+      <td><b>${esc(b.name)}</b></td>
+      <td><strong>${esc(b.table||"—")}</strong></td>
+      <td>${esc(b.date)}<br>${esc(b.time)}</td>
+      <td>${esc(b.guests)}</td>
+      <td>${esc(b.phone)}</td>
+      <td><span class="state-badge ${b.status==="tasdiqlandi"?"ok":b.status==="bekor qilindi"?"bad":""}">${esc(b.status||"kutilmoqda")}</span>${b.status==="tasdiqlandi"?`<br><small>${b.tableReserved===false?"Stol bo'sh qoldi":"Stol band qilindi"}</small>`:""}</td>
+    </tr>`).join(""):`<tr><td colspan="6" class="empty-note">Hozircha bronlar yo'q.</td></tr>`;
+}
+
+function renderOrdersTable() {
+  const list = getOrders();
+
+  if (!list.length) {
+    ordersBody.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty-note">
+          Hozircha buyurtmalar yo'q.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  ordersBody.innerHTML = list.map(o => `
+    <tr>
+      <td>
+        <b>${esc(o.customer || "Noma'lum")}</b><br>
+        <small>${esc(o.phone || "")}</small>
+      </td>
+
+      <td>
+        <strong>${esc(o.table || "—")}</strong>
+      </td>
+
+      <td>
+        ${esc(o.itemsText || formatItems(o))}
+        <br>
+        <small>${esc(o.restaurant || "")}</small>
+      </td>
+
+      <td>
+        <strong>${money(o.total)}</strong>
+      </td>
+
+      <td>
+        ${esc(o.payment || "naqd")}
+      </td>
+
+      <td>
+        <select
+          class="order-status"
+          data-id="${esc(o.id)}"
+        >
+          ${["yangi", "tayyor", "yetkazildi", "bekor"]
+            .map(s => `
+              <option
+                value="${s}"
+                ${String(o.status || "yangi") === s ? "selected" : ""}
+              >
+                ${statusText(s)}
+              </option>
+            `)
+            .join("")}
+        </select>
+      </td>
+
+      <td>
+        <button
+          type="button"
+          class="receipt-btn"
+          data-receipt="${esc(o.id)}"
+        >
+          🧾 Chek
+        </button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+
+function statusText(s) {
+  return {
+    yangi: "Yangi",
+    tayyor: "Tayyor",
+    yetkazildi: "Yetkazildi",
+    bekor: "Bekor"
+  }[s] || s;
+}
+
+
+// STATUS O'ZGARTIRISH
+ordersBody.onchange = function(e) {
+
+  const select = e.target.closest(".order-status");
+
+  if (!select) return;
+
+  const id = String(select.dataset.id);
+  const newStatus = select.value;
+
+  const list = getOrders();
+
+  const index = list.findIndex(
+    o => String(o.id) === id
+  );
+
+  if (index === -1) {
+    console.error("Buyurtma topilmadi:", id);
+    return;
+  }
+
+  // Statusni saqlash
+  list[index] = {
+    ...list[index],
+    status: newStatus
+  };
+
+  // LOCALSTORAGE GA SAQLASH
+  save(ORDERS_KEY, list);
+
+  // Tekshirish
+  const saved = getOrders().find(
+    o => String(o.id) === id
+  );
+
+  console.log("Status saqlandi:", saved);
+
+  // Jadvalni qayta chizish
+  renderOrdersTable();
+
+  // Boshqa qismlarni yangilash
+  if (typeof renderStats === "function") {
+    renderStats();
+  }
+
+  if (typeof renderAccount === "function") {
+    renderAccount();
+  }
+};
+
+
+// CHEK TUGMASI
+ordersBody.onclick = function(e) {
+
+  const btn = e.target.closest("[data-receipt]");
+
+  if (!btn) return;
+
+  const id = btn.dataset.receipt;
+
+  if (typeof printReceipt === "function") {
+    printReceipt(id);
+  }
+};
+
+function renderTables(){
+  const TABLES=getTables();
+  const allBookings=getBookings().filter(b=>b && b.table);
+  const bookings=allBookings.filter(isActiveBooking);
+  const pendingBookings=allBookings.filter(b=>b.status==="kutilmoqda" || !b.status);
+  const orders=getOrders().filter(o=>o.status!=="bekor");
+
+  // Yuqorida barcha bron qilingan/so'ralgan stollarni alohida ko'rsatamiz.
+  const reservedList=allBookings
+    .filter(b=>b.status!=="bekor qilindi" && b.status!=="yakunlandi" && b.tableReserved!==false)
+    .slice(0,12);
+  const reservedInfo=document.getElementById("reservedTablesInfo");
+  if(reservedInfo){
+    reservedInfo.innerHTML=reservedList.length
+      ? reservedList.map(b=>{
+          const state=b.status==="tasdiqlandi"
+            ? (b.tableReserved===false ? "✓ Tasdiqlangan, stol bo'sh" : "🔒 Band")
+            : "⏳ Tasdiq kutilmoqda";
+          return `<span class="reserved-chip"><b>${esc(b.table)}</b> — ${esc(b.name||"Mijoz")} <small>${esc(b.date||"")} ${esc(b.time||"")}</small> <em>${state}</em></span>`;
+        }).join("")
+      : `<span class="reserved-empty">Hozircha bron qilingan stol yo'q.</span>`;
+  }
+
+  const tableManage=document.getElementById("tableManage");
+  if(tableManage){
+    const allOrders=getOrders();
+    tableManage.innerHTML=TABLES.map(table=>{
+      const activeBooking=allBookings.some(b=>b.table===table && b.status!=="bekor qilindi" && b.status!=="yakunlandi" && b.tableReserved!==false);
+      const activeOrder=allOrders.some(o=>o.table===table && o.status!=="bekor" && o.status!=="yetkazildi");
+      const canDelete=!activeBooking && !activeOrder;
+      return `<div class="manage-table-row"><b>🪑 ${esc(table)}</b><span class="manage-table-state">${canDelete?"Bo'sh / o'chirish mumkin":"Band / buyurtma bor"}</span><button class="icon-btn del" data-delete-table="${esc(table)}" ${canDelete?"":"disabled title=\"Avval stolni bo'shating va buyurtmani yakunlang\""}>✕ Stolni chiqarish</button></div>`;
+    }).join("");
+  }
+
+  tableGrid.innerHTML=TABLES.map(table=>{
+    // Tasdiqlangan va stolni band qilish tanlangan bron stolni egallaydi.
+    const bs=bookings.filter(b=>b.table===table && b.status==="tasdiqlandi" && b.tableReserved!==false);
+    // Tasdiqlashni kutayotgan bron ham admin panelida ko'rinadi.
+    const ps=pendingBookings.filter(b=>b.table===table);
+    const os=orders.filter(o=>o.table===table && o.status!=="yetkazildi" && o.status!=="bekor");
+    const current=bs[0];
+    const pending=ps[0];
+    const order=os[0];
+    const orderAccepted=!!order && order.status!=="yangi";
+    const cls=current?"reserved":order?"ordered":pending?"pending":"free";
+
+    return `<div class="table-card ${cls}">
+      <div class="table-no">${esc(table)}</div>
+      <div class="table-state">${current?"🔒 Band":order?"🍽 Buyurtma":pending?"⏳ Bron so'rovi":"✓ Bo'sh"}</div>
+      ${current?`<div class="table-client">${esc(current.name)}<br><small>${esc(current.date)} ${esc(current.time)}</small></div>
+        ${orderAccepted?`<button class="table-action release" data-table="${esc(table)}" data-release="${esc(current.id)}">🔓 Bo'shatish</button>`:`<div class="table-wait">⏳ Buyurtma qabul qilinishini kutmoqda</div>`}`:""}
+      ${pending&&!current?`<div class="table-client">${esc(pending.name||"Mijoz")}<br><small>${esc(pending.date||"")} ${esc(pending.time||"")}</small></div>
+        <div class="table-wait">⏳ Admin tasdig'ini kutmoqda</div>`:""}
+      ${order?`<div class="table-client">🍴 ${esc(order.customer||"Mijoz")}<br><small>${money(order.total)} · ${statusText(order.status)}</small></div>`:""}
+      ${!current && !pending && !order?`<button class="table-action reserve" data-manual-table="${esc(table)}">🔒 Stolni band qilish</button>`:""}
+    </div>`;
+  }).join("");
+}
+
+const tableManage=document.getElementById("tableManage");
+if(tableManage){
+  tableManage.onclick=e=>{
+    const btn=e.target.closest("[data-delete-table]");
+    if(!btn || btn.disabled) return;
+    const table=btn.dataset.deleteTable;
+    const bookings=getBookings();
+    const orders=getOrders();
+    const activeBooking=bookings.some(b=>b.table===table && b.status!=="bekor qilindi" && b.status!=="yakunlandi" && b.tableReserved!==false);
+    const activeOrder=orders.some(o=>o.table===table && o.status!=="bekor" && o.status!=="yetkazildi");
+    if(activeBooking || activeOrder){ alert("⚠️ Bu stol hali band yoki unda faol buyurtma bor. Avval stolni bo'shating."); return; }
+    if(!confirm(`${table} ni tizimdan chiqarishni xohlaysizmi?`)) return;
+    const tables=getTables().filter(x=>x!==table);
+    if(!tables.length){ alert("Kamida 1 ta stol qolishi kerak."); return; }
+    save(TABLES_KEY,tables);
+    renderAll();
+    flash();
+  };
+}
+
+const addTableBtn=document.getElementById("addTableBtn");
+if(addTableBtn){
+  addTableBtn.onclick=()=>{
+    const input=document.getElementById("newTableName");
+    const raw=input.value.trim();
+    if(!raw){alert("Stol nomini kiriting.");return;}
+    const name=raw.toLowerCase().startsWith("stol") ? raw.replace(/^stol\s*/i,"Stol ").trim() : `Stol ${raw}`;
+    const tables=getTables();
+    if(tables.some(t=>t.toLowerCase()===name.toLowerCase())){alert("⚠️ Bu stol allaqachon mavjud.");return;}
+    tables.push(name);
+    save(TABLES_KEY,tables);
+    input.value="";
+    renderAll();
+    flash();
+  };
+}
+
+tableGrid.onclick=e=>{
+  const release=e.target.closest("[data-release]");
+  if(release){
+    const list=getBookings();
+    const b=list.find(x=>String(x.id)===String(release.dataset.release));
+    if(b){
+      b.status="yakunlandi";
+      b.tableReserved=false;
+      b.releasedAt=new Date().toISOString();
+      save(BOOKINGS_KEY,list);
+      renderAll();
+    }
+    return;
+  }
+
+  const manual=e.target.closest("[data-manual-table]");
+  if(manual){
+    const table=manual.dataset.manualTable;
+    const name=prompt(`${table} uchun mijoz ismini kiriting:`);
+    if(!name || !name.trim()) return;
+    const phone=prompt("Telefon raqamini kiriting:") || "";
+    const date=prompt("Sana (YYYY-MM-DD):", new Date().toISOString().slice(0,10));
+    if(!date) return;
+    const time=prompt("Vaqt (HH:MM):", "19:00");
+    if(!time) return;
+    const list=getBookings();
+    const conflict=list.some(b=>b.status==="tasdiqlandi" && b.tableReserved!==false && b.table===table && b.date===date && b.time===time);
+    if(conflict){ alert("⚠️ Bu stol shu sana va vaqtda allaqachon band."); return; }
+    list.unshift({
+      id:"manual-"+Date.now(), restaurant:readSettings().restaurantName||"Osh Markazi",
+      date,time,guests:1,phone,name:name.trim(),table,status:"tasdiqlandi",
+      createdAt:new Date().toISOString(),seen:true,manual:true
+    });
+    save(BOOKINGS_KEY,list);
+    renderAll();
+  }
+};
+
+function renderAccount(){
+  const orders=getOrders().filter(o=>o.status!=="bekor");
+  const subtotal=orders.reduce((s,o)=>s+Number(o.subtotal ?? o.total ?? 0),0);
+  const service=orders.reduce((s,o)=>s+Number(o.service||0),0);
+  const total=orders.reduce((s,o)=>s+Number(o.total||0),0);
+  const delivered=orders.filter(o=>o.status==="yetkazildi").reduce((s,o)=>s+Number(o.total||0),0);
+  accountBox.innerHTML=`
+    <div><span>Taomlar jami</span><strong>${money(subtotal)}</strong></div>
+    <div><span>Xizmat haqi</span><strong>${money(service)}</strong></div>
+    <div class="account-total"><span>Jami tushum</span><strong>${money(total)}</strong></div>
+    <div><span>Yetkazilgan / yakunlangan</span><strong>${money(delivered)}</strong></div>
+    <button class="print-day-btn" id="printDay">🧾 Kunlik umumiy chekni chiqarish</button>`;
+  $("printDay").onclick=printDailyReceipt;
+}
+
+function renderChart(){
+  const counts=Array(7).fill(0);
+  getOrders().filter(o=>o.status!=="bekor").forEach(o=>{
+    const d=o.createdAt?new Date(o.createdAt):new Date();
+    counts[d.getDay()]++;
+  });
+  const max=Math.max(...counts,1);
+  weekChart.innerHTML=counts.map((n,i)=>`
+    <div class="bar-col ${i===new Date().getDay()?"today":""}">
+      <span class="bar-count">${n}</span>
+      <div class="bar" style="height:${Math.max(6,Math.round(n/max*108))}px"></div>
+      <span class="bar-day">${DAYS[i]}</span>
+    </div>`).join("");
+}
+
+function renderMenu(){
+  let menu=[];try{menu=JSON.parse(localStorage.getItem(MENU_KEY)||"[]")}catch{}
+  const groups={};
+  menu.forEach(m=>(groups[m.rest]??=[]).push(m));
+  menuManage.innerHTML=Object.keys(groups).map(rest=>`
+    <div class="menu-group">
+      <div class="menu-group-title">${esc(rest)}</div>
+      ${groups[rest].map(item=>`
+        <div class="menu-row" data-id="${esc(item.id)}" data-rest="${esc(rest)}">
+          <div class="menu-name-price"><span class="m-name">${esc(item.n)}</span><span class="m-price">${money(item.p)}</span></div>
+          <div class="menu-row-actions"><button class="icon-btn" data-action="edit">✎</button><button class="icon-btn del" data-action="delete">✕</button></div>
+        </div>`).join("")}
+    </div>`).join("") || `<div class="empty-note">Menyu bo'sh.</div>`;
+}
+menuManage.onclick=e=>{
+  const btn=e.target.closest("[data-action]");if(!btn)return;
+  const row=btn.closest(".menu-row"), id=row.dataset.id;
+  let menu=JSON.parse(localStorage.getItem(MENU_KEY)||"[]"), item=menu.find(x=>String(x.id)===id);
+  if(!item)return;
+  if(btn.dataset.action==="delete"){
+    menu=menu.filter(x=>String(x.id)!==id);save(MENU_KEY,menu);renderMenu();flash();return;
+  }
+  const name=prompt("Taom nomi:",item.n);if(name===null)return;
+  const price=prompt("Narxi (so'm):",item.p);if(price===null)return;
+  const p=parseInt(price,10);if(!name.trim()||!Number.isFinite(p)||p<=0){alert("To'g'ri nom va narx kiriting.");return}
+  item.n=name.trim();item.p=p;save(MENU_KEY,menu);renderMenu();flash();
+};
+$("addItemBtn").onclick=()=>{
+  const rest=$("newItemRest").value,n=$("newItemName").value.trim(),p=parseInt($("newItemPrice").value,10);
+  if(!n||!Number.isFinite(p)||p<=0){alert("Taom nomi va narxini to'g'ri kiriting.");return}
+  const menu=JSON.parse(localStorage.getItem(MENU_KEY)||"[]");
+  menu.push({id:"m"+Date.now(),rest,n,p});save(MENU_KEY,menu);
+  $("newItemName").value="";$("newItemPrice").value="";renderMenu();flash();
+};
+let flashTimer;
+function flash(){$("saveNote").classList.add("show");clearTimeout(flashTimer);flashTimer=setTimeout(()=>$("saveNote").classList.remove("show"),1800)}
+
+function printReceipt(id){
+  const o=getOrders().find(x=>String(x.id)===String(id));if(!o)return;
+  const items=Array.isArray(o.items)?o.items.map(i=>`<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${money(i.price)}</td><td>${money(i.amount)}</td></tr>`).join("")
+    :`<tr><td colspan="4">${esc(formatItems(o))}</td></tr>`;
+  const w=window.open("","_blank","width=600,height=800");
+  if(!w)return;
+  w.document.write(`<html><head><title>Dasturxon chek</title><style>
+  body{font-family:Arial;padding:28px;max-width:540px;margin:auto;color:#222}h1{text-align:center}small{color:#666}
+  table{width:100%;border-collapse:collapse;margin-top:18px}td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left}
+  .right{text-align:right}.total{font-size:20px;font-weight:bold}.box{padding:12px;background:#f5f1e8;margin:12px 0;border-radius:8px}
+  @media print{button{display:none}}</style></head><body>
+  <h1>Dasturxon</h1><div class="box"><b>${esc(o.customer||"Mijoz")}</b><br>Restoran: ${esc(o.restaurant||"Osh Markazi")}<br>Stol: <b>${esc(o.table||"—")}</b><br>Telefon: ${esc(o.phone||"")}<br>To'lov: ${esc(o.payment||"")}</div>
+  <table><thead><tr><th>Taom</th><th>Soni</th><th>Narx</th><th>Summa</th></tr></thead><tbody>${items}</tbody></table>
+  <p>Taomlar jami: <span class="right">${money(o.subtotal||o.total)}</span></p>
+  <p>Xizmat haqi: <span class="right">${money(o.service||0)}</span></p>
+  <p class="total">JAMI: <span class="right">${money(o.total)}</span></p>
+  <p><small>Buyurtma ID: ${esc(o.id)} · ${new Date(o.createdAt||Date.now()).toLocaleString("uz-UZ")}</small></p>
+  <script>window.onload=()=>{window.print()}<\/script></body></html>`);
+  w.document.close();
+}
+function printDailyReceipt(){
+  const orders=getOrders().filter(o=>o.status!=="bekor");
+  const total=orders.reduce((s,o)=>s+Number(o.total||0),0);
+  const w=window.open("","_blank","width=600,height=800");if(!w)return;
+  w.document.write(`<html><head><title>Kunlik hisob</title><style>body{font-family:Arial;padding:28px;max-width:600px;margin:auto}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left}.total{font-size:22px;font-weight:bold}</style></head><body>
+  <h1>Dasturxon — Kunlik hisob</h1><p>${new Date().toLocaleDateString("uz-UZ")}</p>
+  <table><thead><tr><th>Mijoz</th><th>Stol</th><th>Buyurtma</th><th>Jami</th></tr></thead><tbody>
+  ${orders.map(o=>`<tr><td>${esc(o.customer||"")}</td><td>${esc(o.table||"")}</td><td>${esc(o.itemsText||formatItems(o))}</td><td>${money(o.total)}</td></tr>`).join("")}
+  </tbody></table><p class="total">JAMI: ${money(total)}</p><script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+
+function renderAll(){
+  renderOpen();renderBookingNotifications();renderOrderNotifications();renderStats();
+  renderBookingsTable();renderOrdersTable();renderTables();renderAccount();renderChart();renderMenu();
+}
+window.addEventListener("storage",e=>{
+  if([ORDERS_KEY,BOOKINGS_KEY,MENU_KEY,SETTINGS_KEY].includes(e.key))renderAll();
+});
+setInterval(renderAll,1000);
+
+if(sessionStorage.getItem(SESSION_KEY)==="1")enter();
+})();
+
+</script>
+</body>
+</html>
